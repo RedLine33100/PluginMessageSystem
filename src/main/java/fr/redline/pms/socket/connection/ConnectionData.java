@@ -26,7 +26,7 @@ public abstract class ConnectionData {
     public ConnectionData(ClientManager clientManager) {
         this.clientManager = clientManager;
         this.id = clientManager.getAutoStop().registerSocketData(this);
-        ClientManager.addConnection(this);
+        clientManager.addConnection(this);
     }
 
     public int getId() {
@@ -102,13 +102,12 @@ public abstract class ConnectionData {
             e.printStackTrace();
         }
         getByteBuffer().clear();
-        ClientManager.removeConnection(this);
         for (DataTransfer dataTransfer : getDataTransferList()) {
             if (!dataTransfer.isSocketState(SocketState.FINISH_OKAY) && !dataTransfer.isSocketState(SocketState.FINISH_ERROR))
                 dataTransfer.setSocketState(SocketState.FINISH_ERROR);
         }
         this.getDataTransferList().clear();
-        ClientManager.removeConnection(this);
+        clientManager.removeConnection(this);
     }
 
     public boolean isSocketConnected() {

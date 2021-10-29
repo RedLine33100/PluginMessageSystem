@@ -21,22 +21,22 @@ public class ClientManager {
     }
 
 
-    private static final HashMap<Integer, ConnectionData> connection = new HashMap<>();
+    private final HashMap<Integer, ConnectionData> connection = new HashMap<>();
 
-    public static void addConnection(ConnectionData client) {
+    public void addConnection(ConnectionData client) {
         if (connection.containsKey(client.getId()))
             return;
         connection.put(client.getId(), client);
     }
 
-    public static void removeConnection(ConnectionData client) {
+    public void removeConnection(ConnectionData client) {
         if (!connection.containsKey(client.getId()))
             return;
         client.closeConnection();
         connection.remove(client.getId());
     }
 
-    public static void closeAllConnection() {
+    public void closeAllConnection() {
         if (!connection.isEmpty()) {
             HashMap<Integer, ConnectionData> connectionNew = new HashMap<>(connection);
             connectionNew.forEach((id, client) -> client.closeConnection());
