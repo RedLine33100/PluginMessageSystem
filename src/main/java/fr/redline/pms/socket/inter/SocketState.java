@@ -1,4 +1,4 @@
-package fr.redline.pms.connect.linker.inter;
+package fr.redline.pms.socket.inter;
 
 public enum SocketState {
     WAIT_APPROVAL_SEND("WAIT_APPROVAL_SEND"),

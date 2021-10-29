@@ -1,4 +1,4 @@
-package fr.redline.pms.connect.pm;
+package fr.redline.pms.pm;
 
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;

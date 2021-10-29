@@ -1,4 +1,4 @@
-package fr.redline.pms.connect.linker.thread.server;
+package fr.redline.pms.socket.listener.server;
 
 public enum ServerState {
     MISSING_BOUND,

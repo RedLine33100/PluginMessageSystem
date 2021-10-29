@@ -1,8 +1,8 @@
-package fr.redline.pms.connect.pm;
+package fr.redline.pms.pm;
 
-import fr.redline.pms.connect.linker.SocketGestion;
-import fr.redline.pms.connect.linker.inter.DataTransfer;
-import fr.redline.pms.connect.linker.thread.connection.ServerConnection;
+import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.socket.inter.DataTransfer;
+import fr.redline.pms.socket.connection.ServerConnection;
 
 import java.util.logging.Level;
 
@@ -17,12 +17,12 @@ public class PMConnectClient extends DataTransfer {
 
     ServerConnection socketData;
 
-    SocketGestion socketGestion;
+    ClientManager clientManager;
 
-    public PMConnectClient(SocketGestion socketGestion, ServerConnection socketData, String message) {
+    public PMConnectClient(ClientManager clientManager, ServerConnection socketData, String message) {
         super(socketData);
         this.socketData = socketData;
-        this.socketGestion = socketGestion;
+        this.clientManager = clientManager;
         this.message = message;
     }
 
@@ -55,7 +55,7 @@ public class PMConnectClient extends DataTransfer {
 
     public void messageReceived(String message) {
         if (this.send) {
-            this.socketGestion.sendLogMessage(Level.INFO, "PM: Receiving PM");
+            this.clientManager.sendLogMessage(Level.INFO, "PM: Receiving PM");
             this.end = true;
             this.reussite = message.equals("Okay");
         }
@@ -63,7 +63,7 @@ public class PMConnectClient extends DataTransfer {
 
     public void socketWritable() {
         if (!this.send) {
-            this.socketGestion.sendLogMessage(Level.INFO, "PM: Sending PM");
+            this.clientManager.sendLogMessage(Level.INFO, "PM: Sending PM");
             this.socketData.write(this.message);
             this.send = true;
             this.socketData.getSelectionKey().interestOps(1);

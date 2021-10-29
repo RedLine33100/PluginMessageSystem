@@ -1,30 +1,27 @@
-package fr.redline.pms.connect.linker;
+package fr.redline.pms.socket.manager;
 
-import fr.redline.pms.connect.linker.autostop.AutoStopSyst;
-import fr.redline.pms.connect.linker.thread.connection.Connection;
+import fr.redline.pms.socket.connection.Connection;
+import fr.redline.pms.utils.CredentialClass;
+import fr.redline.pms.utils.GSONSaver;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-public class SocketGestion {
-    private static final HashMap<Integer, Connection> connection = new HashMap<>();
-    private final ArrayList<String> forbiddenWord;
-    AutoStopSyst autoStop = new AutoStopSyst(this);
-    boolean log;
-    String logDiff;
-    String socketSplit;
-    String pmsSplit;
+public class ClientManager {
 
-    public SocketGestion(boolean log, String socketSplit, String pmsSplit, String logDiff) {
-        this.forbiddenWord = new ArrayList<>();
-        this.log = log;
-        this.socketSplit = socketSplit;
-        addForbiddenWord(this.socketSplit);
-        this.pmsSplit = pmsSplit;
-        addForbiddenWord(this.pmsSplit);
-        this.logDiff = logDiff;
+    public ClientManager(boolean log, String socketSplit, String pmsSplit, String logDiff) {
+        setLog(log);
+        setSocketSplit(socketSplit);
+        addForbiddenWord(socketSplit);
+        setPMSSplit(pmsSplit);
+        addForbiddenWord(pmsSplit);
+        setLogDiff(logDiff);
     }
+
+
+    private static final HashMap<Integer, Connection> connection = new HashMap<>();
 
     public static void addConnection(Connection client) {
         if (connection.containsKey(client.getId()))
@@ -35,6 +32,7 @@ public class SocketGestion {
     public static void removeConnection(Connection client) {
         if (!connection.containsKey(client.getId()))
             return;
+        client.closeConnection();
         connection.remove(client.getId());
     }
 
@@ -45,30 +43,76 @@ public class SocketGestion {
         }
     }
 
-    public void startAutoStop() {
-        this.autoStop.setDisable(false);
+    /*
+        Credential Class
+     */
+
+    private CredentialClass credentialClass = new CredentialClass();
+
+    public CredentialClass getCredentialClass() {
+        return this.credentialClass;
     }
 
-    public void stopAutoStop() {
-        this.autoStop.setDisable(true);
+    public void saveCredential(File file) {
+        GSONSaver.writeGSON(file, getCredentialClass());
     }
+
+    public boolean loadCredential(File file) {
+        CredentialClass credentialClass = GSONSaver.loadGSON(file, CredentialClass.class);
+        if (credentialClass != null) {
+            this.credentialClass = credentialClass;
+            return true;
+        }
+        return false;
+    }
+
+    /*
+        AutoStop System
+     */
+
+    AutoStopSyst autoStop = new AutoStopSyst(this);
 
     public AutoStopSyst getAutoStop() {
         return this.autoStop;
     }
 
-    public void setAutoStopDelay(Long l) {
-        this.autoStop.setMaxTimeDiff(l);
+    /*
+        Log
+     */
+
+    boolean log;
+    String logDiff;
+
+    public void setLogDiff(String log){
+        this.logDiff = log;
+    }
+
+    public String getLogDiff(){
+        return logDiff;
+    }
+
+    public void setLog(boolean log){
+        this.log = log;
+    }
+
+    public boolean getLogState(){
+        return log;
     }
 
     public void sendLogMessage(Level level, String message) {
-        if (this.log)
+        if (this.getLogState())
             if (this.logDiff != null) {
                 System.out.println(level.getName() + ") " + this.logDiff + message);
             } else {
                 System.out.println(level.getName() + ") " + message);
             }
     }
+
+    /*
+        Splitter Gestion
+     */
+
+    String socketSplit, pmsSplit;
 
     public String getSocketSplit() {
         return this.socketSplit;
@@ -89,6 +133,12 @@ public class SocketGestion {
         this.pmsSplit = s;
         addForbiddenWord(this.pmsSplit);
     }
+
+    /*
+        Forbidden Words
+     */
+
+    private final ArrayList<String> forbiddenWord = new ArrayList<>();
 
     public boolean containsForbiddenWord(String s) {
         return this.forbiddenWord.contains(s);

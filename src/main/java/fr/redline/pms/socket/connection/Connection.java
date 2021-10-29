@@ -1,9 +1,8 @@
-package fr.redline.pms.connect.linker.thread.connection;
+package fr.redline.pms.socket.connection;
 
-import fr.redline.pms.connect.linker.SocketGestion;
-import fr.redline.pms.connect.linker.inter.DataTransfer;
-import fr.redline.pms.connect.linker.inter.SocketState;
-import fr.redline.pms.connect.linker.thread.LinkState;
+import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.socket.inter.DataTransfer;
+import fr.redline.pms.socket.inter.SocketState;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,7 +14,7 @@ import java.util.logging.Level;
 
 public abstract class Connection {
 
-    private final SocketGestion socketGestion;
+    private final ClientManager clientManager;
     private final int id;
     private final ByteBuffer byteBuffer = ByteBuffer.allocate(256);
     private final List<DataTransfer> dataTransferList = new ArrayList<>();
@@ -24,10 +23,10 @@ public abstract class Connection {
     private LinkState linkState = LinkState.NOT_LOGGED;
     private long lastDataMillis = System.currentTimeMillis();
 
-    public Connection(SocketGestion socketGestion) {
-        this.socketGestion = socketGestion;
-        this.id = socketGestion.getAutoStop().registerSocketData(this);
-        SocketGestion.addConnection(this);
+    public Connection(ClientManager clientManager) {
+        this.clientManager = clientManager;
+        this.id = clientManager.getAutoStop().registerSocketData(this);
+        ClientManager.addConnection(this);
     }
 
     public int getId() {
@@ -64,8 +63,8 @@ public abstract class Connection {
         this.attachment = attachment;
     }
 
-    public SocketGestion getSocketGestion() {
-        return socketGestion;
+    public ClientManager getSocketGestion() {
+        return clientManager;
     }
 
     public String getAccount() {
@@ -103,7 +102,7 @@ public abstract class Connection {
             e.printStackTrace();
         }
         getByteBuffer().clear();
-        SocketGestion.removeConnection(this);
+        ClientManager.removeConnection(this);
         for (DataTransfer dataTransfer : getDataTransferList()) {
             if (!dataTransfer.isSocketState(SocketState.FINISH_OKAY) && !dataTransfer.isSocketState(SocketState.FINISH_ERROR))
                 dataTransfer.setSocketState(SocketState.FINISH_ERROR);
@@ -118,12 +117,12 @@ public abstract class Connection {
     public boolean write(String textToWrite) {
 
         if (!isSocketConnected()) {
-            this.socketGestion.sendLogMessage(Level.SEVERE, "Text cannot be write: " + textToWrite + " on: " + getId());
+            this.clientManager.sendLogMessage(Level.SEVERE, "Text cannot be write: " + textToWrite + " on: " + getId());
             return false;
         }
 
         getSelectionKey().interestOps(SelectionKey.OP_WRITE);
-        this.socketGestion.sendLogMessage(Level.INFO, "Writing on: " + getId() + " text: " + textToWrite);
+        this.clientManager.sendLogMessage(Level.INFO, "Writing on: " + getId() + " text: " + textToWrite);
         try {
             ByteBuffer buffer = getByteBuffer();
             buffer.clear();
@@ -134,10 +133,10 @@ public abstract class Connection {
                 assert bytesWritten > 0;
             }
             buffer.clear();
-            this.socketGestion.sendLogMessage(Level.INFO, "Text: " + textToWrite + " writed on socket: " + getId());
+            this.clientManager.sendLogMessage(Level.INFO, "Text: " + textToWrite + " writed on socket: " + getId());
             return true;
         } catch (IOException e) {
-            this.socketGestion.sendLogMessage(Level.SEVERE, "Failed to write: " + textToWrite + " on: " + getId());
+            this.clientManager.sendLogMessage(Level.SEVERE, "Failed to write: " + textToWrite + " on: " + getId());
             e.printStackTrace();
             return false;
         }
@@ -146,7 +145,7 @@ public abstract class Connection {
 
     public String read() {
         if (isSocketConnected()) {
-            this.socketGestion.sendLogMessage(Level.INFO, "Trying to read on: " + getId());
+            this.clientManager.sendLogMessage(Level.INFO, "Trying to read on: " + getId());
             try {
                 getSelectionKey().interestOps(SelectionKey.OP_READ);
                 ByteBuffer buffer = getByteBuffer();
@@ -156,13 +155,13 @@ public abstract class Connection {
                     return null;
                 buffer.flip();
                 String text = new String(buffer.array()).trim();
-                this.socketGestion.sendLogMessage(Level.FINE, "Message: " + text + " readed on: " + getId());
+                this.clientManager.sendLogMessage(Level.FINE, "Message: " + text + " readed on: " + getId());
                 return text;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else
-            this.socketGestion.sendLogMessage(Level.SEVERE, "Message cannot be read on: " + getId() + " Socket not connected");
+            this.clientManager.sendLogMessage(Level.SEVERE, "Message cannot be read on: " + getId() + " Socket not connected");
         return null;
     }
 

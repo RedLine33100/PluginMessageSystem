@@ -1,8 +1,8 @@
-package fr.redline.pms.connect.pm;
+package fr.redline.pms.pm;
 
-import fr.redline.pms.connect.linker.SocketGestion;
-import fr.redline.pms.connect.linker.inter.DataTransfer;
-import fr.redline.pms.connect.linker.thread.connection.ClientConnection;
+import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.socket.inter.DataTransfer;
+import fr.redline.pms.socket.connection.ClientConnection;
 
 import java.util.logging.Level;
 
@@ -10,12 +10,12 @@ public class PMConnectServer extends DataTransfer {
 
     boolean end = false;
     ClientConnection socketData;
-    SocketGestion socketGestion;
+    ClientManager clientManager;
 
-    public PMConnectServer(SocketGestion socketGestion, ClientConnection socketData) {
+    public PMConnectServer(ClientManager clientManager, ClientConnection socketData) {
         super(socketData);
         this.socketData = socketData;
-        this.socketGestion = socketGestion;
+        this.clientManager = clientManager;
     }
 
     public void afterWaitApproval() {
@@ -40,8 +40,8 @@ public class PMConnectServer extends DataTransfer {
     }
 
     public void messageReceived(String message) {
-        this.socketGestion.sendLogMessage(Level.FINE, "PM: Receiving and Sending PM");
-        String[] param = message.split(this.socketGestion.getPMSSplit());
+        this.clientManager.sendLogMessage(Level.FINE, "PM: Receiving and Sending PM");
+        String[] param = message.split(this.clientManager.getPMSSplit());
         this.socketData.getSelectionKey().interestOps(4);
         if (param.length == 2) {
             PMReceiver pmReceiver = PMManager.getPMReceiver(param[0]);

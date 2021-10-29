@@ -1,4 +1,4 @@
-package fr.redline.pms.connect.pm;
+package fr.redline.pms.pm;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;

@@ -1,4 +1,4 @@
-package fr.redline.pms.connect.linker.thread;
+package fr.redline.pms.socket.connection;
 
 public enum LinkState {
     NOT_LOGGED,

@@ -1,6 +1,6 @@
-package fr.redline.pms.connect.linker.thread.connection;
+package fr.redline.pms.socket.connection;
 
-import fr.redline.pms.connect.linker.SocketGestion;
+import fr.redline.pms.socket.manager.ClientManager;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -13,8 +13,8 @@ public class ClientConnection extends Connection {
 
     private final SelectionKey selectionKey;
 
-    public ClientConnection(SocketGestion socketGestion, SelectionKey selectionKey) {
-        super(socketGestion);
+    public ClientConnection(ClientManager clientManager, SelectionKey selectionKey) {
+        super(clientManager);
         this.selectionKey = selectionKey;
     }
 

@@ -1,10 +1,11 @@
-package fr.redline.pms.connect.linker.thread;
+package fr.redline.pms.socket.listener;
 
 import com.google.common.hash.Hashing;
-import fr.redline.pms.connect.linker.SocketGestion;
-import fr.redline.pms.connect.linker.inter.DataTransfer;
-import fr.redline.pms.connect.linker.inter.SocketState;
-import fr.redline.pms.connect.linker.thread.connection.ServerConnection;
+import fr.redline.pms.socket.connection.LinkState;
+import fr.redline.pms.socket.connection.ServerConnection;
+import fr.redline.pms.socket.inter.DataTransfer;
+import fr.redline.pms.socket.inter.SocketState;
+import fr.redline.pms.socket.manager.ClientManager;
 import fr.redline.pms.utils.IpInfo;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-public class Client extends SocketGestion {
+public class Client extends ClientManager {
 
     private final HashMap<String, ServerConnection> hashMap = new HashMap<>();
     private boolean running = false;

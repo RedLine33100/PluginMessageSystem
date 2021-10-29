@@ -1,7 +1,7 @@
-package fr.redline.pms.connect.pm;
+package fr.redline.pms.pm;
 
-import fr.redline.pms.connect.linker.thread.Client;
-import fr.redline.pms.connect.linker.thread.connection.ServerConnection;
+import fr.redline.pms.socket.listener.Client;
+import fr.redline.pms.socket.connection.ServerConnection;
 
 import java.util.HashMap;
 

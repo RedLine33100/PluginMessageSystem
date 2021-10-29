@@ -1,6 +1,6 @@
-package fr.redline.pms.connect.linker.inter;
+package fr.redline.pms.socket.inter;
 
-import fr.redline.pms.connect.linker.thread.connection.Connection;
+import fr.redline.pms.socket.connection.Connection;
 
 public abstract class DataTransfer {
     private final Connection socketData;

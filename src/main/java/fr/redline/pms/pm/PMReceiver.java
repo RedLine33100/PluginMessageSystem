@@ -1,4 +1,4 @@
-package fr.redline.pms.connect.pm;
+package fr.redline.pms.pm;
 
 public interface PMReceiver {
     void socketPluginMessageReceived(String paramString, String message);
