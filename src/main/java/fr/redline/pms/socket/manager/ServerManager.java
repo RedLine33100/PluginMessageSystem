@@ -1,5 +1,6 @@
 package fr.redline.pms.socket.manager;
 
+import fr.redline.pms.socket.connection.Connection;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.InstanceCreator;
 import fr.redline.pms.socket.connection.ClientConnection;
@@ -29,7 +30,7 @@ public class ServerManager extends ClientManager {
         return this.socketReceiverHashMap.containsKey(title);
     }
 
-    public DataTransfer getSocketReceiver(ClientConnection socketData, String title) {
+    public DataTransfer getSocketReceiver(Connection socketData, String title) {
         if (!hasSocketReceiver(title))
             return null;
         Memorize memorize = this.socketReceiverHashMap.get(title);

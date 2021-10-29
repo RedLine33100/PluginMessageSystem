@@ -108,6 +108,7 @@ public abstract class Connection {
                 dataTransfer.setSocketState(SocketState.FINISH_ERROR);
         }
         this.getDataTransferList().clear();
+        ClientManager.removeConnection(this);
     }
 
     public boolean isSocketConnected() {

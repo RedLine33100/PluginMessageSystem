@@ -43,4 +43,9 @@ public class CredentialClass {
     public void authorizeAnonymous(boolean b) {
         this.anonymous = b;
     }
+
+    public String getEncryptedPassword(String account){
+        return credential.get(account);
+    }
+
 }
