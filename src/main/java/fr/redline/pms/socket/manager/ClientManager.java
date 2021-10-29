@@ -1,6 +1,6 @@
 package fr.redline.pms.socket.manager;
 
-import fr.redline.pms.socket.connection.Connection;
+import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.utils.CredentialClass;
 import fr.redline.pms.utils.GSONSaver;
 
@@ -21,15 +21,15 @@ public class ClientManager {
     }
 
 
-    private static final HashMap<Integer, Connection> connection = new HashMap<>();
+    private static final HashMap<Integer, ConnectionData> connection = new HashMap<>();
 
-    public static void addConnection(Connection client) {
+    public static void addConnection(ConnectionData client) {
         if (connection.containsKey(client.getId()))
             return;
         connection.put(client.getId(), client);
     }
 
-    public static void removeConnection(Connection client) {
+    public static void removeConnection(ConnectionData client) {
         if (!connection.containsKey(client.getId()))
             return;
         client.closeConnection();
@@ -38,7 +38,7 @@ public class ClientManager {
 
     public static void closeAllConnection() {
         if (!connection.isEmpty()) {
-            HashMap<Integer, Connection> connectionNew = new HashMap<>(connection);
+            HashMap<Integer, ConnectionData> connectionNew = new HashMap<>(connection);
             connectionNew.forEach((id, client) -> client.closeConnection());
         }
     }

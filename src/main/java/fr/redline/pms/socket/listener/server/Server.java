@@ -1,14 +1,13 @@
 package fr.redline.pms.socket.listener.server;
 
-import fr.redline.pms.socket.connection.Connection;
-import fr.redline.pms.socket.listener.Listener;
-import fr.redline.pms.socket.listener.ListenerType;
-import fr.redline.pms.socket.manager.ClientManager;
-import fr.redline.pms.socket.manager.ServerManager;
+import fr.redline.pms.socket.connection.ClientConnectionData;
+import fr.redline.pms.socket.connection.ConnectionData;
+import fr.redline.pms.socket.connection.LinkState;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
-import fr.redline.pms.socket.connection.LinkState;
-import fr.redline.pms.socket.connection.ClientConnection;
+import fr.redline.pms.socket.listener.Listener;
+import fr.redline.pms.socket.listener.ListenerType;
+import fr.redline.pms.socket.manager.ServerManager;
 import fr.redline.pms.utils.IpInfo;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 
 public class Server extends Listener {
@@ -122,7 +120,7 @@ public class Server extends Listener {
             socketChannel.configureBlocking(false);
 
             SelectionKey newKey = socketChannel.register(getSelector(), SelectionKey.OP_READ);
-            ClientConnection socketData1 = new ClientConnection(getClientManager(), newKey);
+            ClientConnectionData socketData1 = new ClientConnectionData(getClientManager(), newKey);
             getClientManager().sendLogMessage(Level.INFO, "Phase 1) Connection: " + socketChannel.getRemoteAddress() + " registered with id: " + socketData1.getId());
 
             newKey.attach(socketData1);
@@ -137,7 +135,7 @@ public class Server extends Listener {
 
     }
 
-    public void onReadable(Connection socketData, SelectionKey key){
+    public void onReadable(ConnectionData socketData, SelectionKey key) {
 
         getClientManager().sendLogMessage(Level.INFO, "Reading) Reading data on Socket: " + socketData.getId());
         String text = socketData.read();
@@ -187,7 +185,7 @@ public class Server extends Listener {
 
     }
 
-    public void onWritable(Connection socketData, SelectionKey key){
+    public void onWritable(ConnectionData socketData, SelectionKey key) {
         getClientManager().sendLogMessage(Level.INFO, "Write) Checking for dataTransfer linked on: " + socketData.getId());
         DataTransfer dataTransfer = socketData.getFirstDataSender();
         if (dataTransfer == null)

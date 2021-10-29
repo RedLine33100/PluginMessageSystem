@@ -1,12 +1,12 @@
 package fr.redline.pms.socket.inter;
 
-import fr.redline.pms.socket.connection.Connection;
+import fr.redline.pms.socket.connection.ConnectionData;
 
 public abstract class DataTransfer {
-    private final Connection socketData;
+    private final ConnectionData socketData;
     private SocketState socketState = SocketState.WAIT_APPROVAL_SEND;
 
-    public DataTransfer(Connection socketData) {
+    public DataTransfer(ConnectionData socketData) {
         this.socketData = socketData;
     }
 
@@ -36,7 +36,7 @@ public abstract class DataTransfer {
         return getSocketState().getName().equals(socketState.getName());
     }
 
-    public Connection getConnection() {
+    public ConnectionData getConnection() {
         return this.socketData;
     }
 

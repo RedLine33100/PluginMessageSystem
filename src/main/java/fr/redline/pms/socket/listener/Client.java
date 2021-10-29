@@ -1,8 +1,8 @@
 package fr.redline.pms.socket.listener;
 
-import fr.redline.pms.socket.connection.Connection;
+import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.socket.connection.LinkState;
-import fr.redline.pms.socket.connection.ServerConnection;
+import fr.redline.pms.socket.connection.ServerConnectionData;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
 import fr.redline.pms.socket.manager.ClientManager;
@@ -21,11 +21,11 @@ public class Client extends Listener {
         super(clientManager, ListenerType.CLIENT);
     }
 
-    public ServerConnection createConnection(IpInfo ipInfo, String account) {
+    public ServerConnectionData createConnection(IpInfo ipInfo, String account) {
 
         String accountPassword = getClientManager().getCredentialClass().getEncryptedPassword(account);
 
-        if(accountPassword == null)
+        if (accountPassword == null)
             return null;
 
         try {
@@ -35,7 +35,7 @@ public class Client extends Listener {
             SocketChannel channelSend = SocketChannel.open();
             channelSend.connect(new InetSocketAddress(ipInfo.getIp(), ipInfo.getPort()));
 
-            ServerConnection socketData = new ServerConnection(getClientManager(), channelSend.register(getSelector(), SelectionKey.OP_CONNECT));
+            ServerConnectionData socketData = new ServerConnectionData(getClientManager(), channelSend.register(getSelector(), SelectionKey.OP_CONNECT));
 
             getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Connecting to: " + ipInfo);
             socketData.getSelectionKey().attach(socketData);
@@ -52,7 +52,7 @@ public class Client extends Listener {
         }
     }
 
-    public void addDataTransfer(ServerConnection socketData, DataTransfer dataTransfer) {
+    public void addDataTransfer(ServerConnectionData socketData, DataTransfer dataTransfer) {
         socketData.addDataSender(dataTransfer);
     }
 
@@ -61,9 +61,9 @@ public class Client extends Listener {
         return null;
     }
 
-    public void onReadable(Connection socketData, SelectionKey key){
+    public void onReadable(ConnectionData socketData, SelectionKey key) {
 
-        if(!(socketData instanceof ServerConnection)){
+        if (!(socketData instanceof ServerConnectionData)) {
             return;
         }
 
@@ -81,7 +81,7 @@ public class Client extends Listener {
             switch (received) {
                 case "needMDP": {
                     getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Sending credential");
-                    sendCredential(socketData, ((ServerConnection) socketData).getPassword());
+                    sendCredential(socketData, ((ServerConnectionData) socketData).getPassword());
                     break;
                 }
                 case "logOkay": {
@@ -154,7 +154,7 @@ public class Client extends Listener {
 
     }
 
-    public void onWritable(Connection socketData, SelectionKey key){
+    public void onWritable(ConnectionData socketData, SelectionKey key) {
         DataTransfer dataTransfer = socketData.getFirstDataSender();
         if (dataTransfer != null && socketData.getLinkState() == LinkState.LOGGED) {
             if (dataTransfer.isSocketState(SocketState.WAIT_APPROVAL_SEND)) {

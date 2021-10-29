@@ -1,9 +1,7 @@
 package fr.redline.pms.socket.listener;
 
-import fr.redline.pms.socket.connection.ClientConnection;
-import fr.redline.pms.socket.connection.Connection;
+import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.socket.connection.LinkState;
-import fr.redline.pms.socket.connection.ServerConnection;
 import fr.redline.pms.socket.manager.ClientManager;
 
 import java.io.IOException;
@@ -36,7 +34,7 @@ public abstract class Listener {
 
     public abstract ServerSocketChannel getServerSocketChannel();
 
-    protected boolean logIn(Connection socketData, String text) {
+    protected boolean logIn(ConnectionData socketData, String text) {
         if (socketData.getLinkState() == LinkState.LOGGED) {
             getClientManager().sendLogMessage(Level.SEVERE, "Phase 2) Error on connecting " + socketData.getId() + " Reason: Socket already connected");
             return true;
@@ -79,7 +77,7 @@ public abstract class Listener {
         return authorized;
     }
 
-    protected void sendCredential(Connection socketData, String password) {
+    protected void sendCredential(ConnectionData socketData, String password) {
         String toSend = "logCred" + clientManager.getSocketSplit();
         if (socketData.getAccount() != null) {
             toSend += socketData.getAccount();
@@ -111,9 +109,9 @@ public abstract class Listener {
         return this.selector;
     }
 
-    public abstract void onReadable(Connection clientConnection, SelectionKey selectionKey);
+    public abstract void onReadable(ConnectionData clientConnectionData, SelectionKey selectionKey);
 
-    public abstract void onWritable(Connection clientConnection, SelectionKey selectionKey);
+    public abstract void onWritable(ConnectionData clientConnectionData, SelectionKey selectionKey);
 
     public abstract void onAcceptable();
 
@@ -132,7 +130,7 @@ public abstract class Listener {
                             continue;
                         }
 
-                        Connection socketData = (Connection) selectionKey.attachment();
+                        ConnectionData socketData = (ConnectionData) selectionKey.attachment();
                         if (selectionKey.isReadable()) {
                             onReadable(socketData, selectionKey);
                         }else if (selectionKey.isWritable()) {

@@ -1,7 +1,7 @@
 package fr.redline.pms.pm;
 
+import fr.redline.pms.socket.connection.ServerConnectionData;
 import fr.redline.pms.socket.listener.Client;
-import fr.redline.pms.socket.connection.ServerConnection;
 
 import java.util.HashMap;
 
@@ -27,13 +27,13 @@ public class PMManager {
         pluginMessageReceiver.remove(title);
     }
 
-    public static void sendPluginMessage(Client client, ServerConnection socketData, String title, String message) {
+    public static void sendPluginMessage(Client client, ServerConnectionData socketData, String title, String message) {
         System.out.println("spm: " + title);
-        if (client.containsForbiddenWord(title))
+        if (client.getClientManager().containsForbiddenWord(title))
             return;
-        if (client.containsForbiddenWord(message))
+        if (client.getClientManager().containsForbiddenWord(message))
             return;
-        PMConnectClient pmConnectClient = new PMConnectClient(client, socketData, title + client.getPMSSplit() + message);
+        PMConnectClient pmConnectClient = new PMConnectClient(client.getClientManager(), socketData, title + client.getClientManager().getPMSSplit() + message);
         client.addDataTransfer(socketData, pmConnectClient);
     }
 }

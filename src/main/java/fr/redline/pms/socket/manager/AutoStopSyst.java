@@ -1,6 +1,6 @@
 package fr.redline.pms.socket.manager;
 
-import fr.redline.pms.socket.connection.Connection;
+import fr.redline.pms.socket.connection.ConnectionData;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -8,7 +8,7 @@ import java.util.logging.Level;
 public class AutoStopSyst extends Thread {
 
     private final ClientManager clientManager;
-    private final ArrayList<Connection> autoStopData = new ArrayList<>();
+    private final ArrayList<ConnectionData> autoStopData = new ArrayList<>();
     private boolean running = false;
     private boolean disable = true;
     private int unique = 0;
@@ -30,7 +30,7 @@ public class AutoStopSyst extends Thread {
         this.disable = d;
     }
 
-    public int registerSocketData(Connection socketData) {
+    public int registerSocketData(ConnectionData socketData) {
         this.autoStopData.add(socketData);
         if (!this.running && !disable)
             this.start();
@@ -43,7 +43,7 @@ public class AutoStopSyst extends Thread {
         while (!this.disable && !this.autoStopData.isEmpty()) {
             long currentTimeMillis = System.currentTimeMillis();
             for (int i = 0; i < this.autoStopData.size(); i++) {
-                Connection socketData = this.autoStopData.get(i);
+                ConnectionData socketData = this.autoStopData.get(i);
                 if (socketData.isSocketConnected()) {
                     long diff = currentTimeMillis - socketData.getLastDataMillis();
                     if (diff >= this.milliDiff || diff <= this.milliDiff * -1L) {

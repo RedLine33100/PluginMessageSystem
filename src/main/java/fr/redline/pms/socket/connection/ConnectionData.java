@@ -1,8 +1,8 @@
 package fr.redline.pms.socket.connection;
 
-import fr.redline.pms.socket.manager.ClientManager;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
+import fr.redline.pms.socket.manager.ClientManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-public abstract class Connection {
+public abstract class ConnectionData {
 
     private final ClientManager clientManager;
     private final int id;
@@ -23,7 +23,7 @@ public abstract class Connection {
     private LinkState linkState = LinkState.NOT_LOGGED;
     private long lastDataMillis = System.currentTimeMillis();
 
-    public Connection(ClientManager clientManager) {
+    public ConnectionData(ClientManager clientManager) {
         this.clientManager = clientManager;
         this.id = clientManager.getAutoStop().registerSocketData(this);
         ClientManager.addConnection(this);

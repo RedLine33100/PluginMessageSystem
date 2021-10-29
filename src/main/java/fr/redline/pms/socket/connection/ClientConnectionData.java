@@ -5,7 +5,7 @@ import fr.redline.pms.socket.manager.ClientManager;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-public class ClientConnection extends Connection {
+public class ClientConnectionData extends ConnectionData {
 
     /*
     Use in Client Side
@@ -13,7 +13,7 @@ public class ClientConnection extends Connection {
 
     private final SelectionKey selectionKey;
 
-    public ClientConnection(ClientManager clientManager, SelectionKey selectionKey) {
+    public ClientConnectionData(ClientManager clientManager, SelectionKey selectionKey) {
         super(clientManager);
         this.selectionKey = selectionKey;
     }

@@ -1,18 +1,18 @@
 package fr.redline.pms.pm;
 
-import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.socket.inter.DataTransfer;
-import fr.redline.pms.socket.connection.ClientConnection;
+import fr.redline.pms.socket.manager.ClientManager;
 
 import java.util.logging.Level;
 
 public class PMConnectServer extends DataTransfer {
 
     boolean end = false;
-    ClientConnection socketData;
+    ConnectionData socketData;
     ClientManager clientManager;
 
-    public PMConnectServer(ClientManager clientManager, ClientConnection socketData) {
+    public PMConnectServer(ClientManager clientManager, ConnectionData socketData) {
         super(socketData);
         this.socketData = socketData;
         this.clientManager = clientManager;

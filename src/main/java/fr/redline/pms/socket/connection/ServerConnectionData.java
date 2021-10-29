@@ -1,12 +1,12 @@
 package fr.redline.pms.socket.connection;
 
-import fr.redline.pms.socket.manager.ClientManager;
 import fr.redline.pms.socket.inter.DataTransfer;
+import fr.redline.pms.socket.manager.ClientManager;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-public class ServerConnection extends Connection {
+public class ServerConnectionData extends ConnectionData {
 
     /*
     Use on server Side
@@ -16,7 +16,7 @@ public class ServerConnection extends Connection {
 
     private String pass = null;
 
-    public ServerConnection(ClientManager clientManager, SelectionKey selectionKey) {
+    public ServerConnectionData(ClientManager clientManager, SelectionKey selectionKey) {
         super(clientManager);
         this.selectionKey = selectionKey;
     }
