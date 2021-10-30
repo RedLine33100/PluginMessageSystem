@@ -19,9 +19,6 @@ import java.util.logging.Level;
 
 public class Server extends Listener {
 
-    /// Socket Needed
-    ServerSocketChannel server = null;
-
     ServerState serverState = ServerState.MISSING_BOUND;
     Timer timer = new Timer();
 
@@ -33,11 +30,10 @@ public class Server extends Listener {
     @Override
     public void stop() {
         getClientManager().sendLogMessage(Level.SEVERE, "Stopping serveur");
-
-        if (this.server != null) {
+        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) getSocketChannel();
+        if (serverSocketChannel != null) {
             try {
-                this.server.close();
-                this.server = null;
+                this.stopConnection();
             } catch (IOException ignore) {
                 if (serverState == ServerState.RUNNING)
                     this.serverState = ServerState.STOP_ERROR;
@@ -47,7 +43,7 @@ public class Server extends Listener {
         stopListener();
 
         try {
-            closeSelector();
+            stopConnection();
         } catch (IOException ignore) {
             if (serverState == ServerState.RUNNING)
                 this.serverState = ServerState.STOP_ERROR;
@@ -69,13 +65,13 @@ public class Server extends Listener {
 
         try {
 
-            startSelector();
-            this.server = ServerSocketChannel.open();
+            startConnection();
+            ServerSocketChannel server = (ServerSocketChannel) getSocketChannel();
 
-            this.server.bind(new InetSocketAddress(this.getIpInfo().getIp(), this.getIpInfo().getPort()));
+            server.bind(new InetSocketAddress(this.getIpInfo().getIp(), this.getIpInfo().getPort()));
 
-            this.server.configureBlocking(false);
-            this.server.register(getSelector(), this.server.validOps(), null);
+            server.configureBlocking(false);
+            server.register(getSelector(), server.validOps(), null);
 
             this.serverState = ServerState.RUNNING;
 
@@ -97,8 +93,7 @@ public class Server extends Listener {
     public void onAcceptable(){
 
         try {
-
-            SocketChannel socketChannel = this.server.accept();
+            SocketChannel socketChannel = ((ServerSocketChannel) getSocketChannel()).accept();
             if (socketChannel == null) {
                 getClientManager().sendLogMessage(Level.INFO, "Phase 1) No connection accepted");
                 return;
@@ -108,7 +103,7 @@ public class Server extends Listener {
             socketChannel.configureBlocking(false);
 
             SelectionKey newKey = socketChannel.register(getSelector(), SelectionKey.OP_READ);
-            ClientConnectionData socketData1 = new ClientConnectionData(getClientManager(), newKey);
+            ClientConnectionData socketData1 = new ClientConnectionData(getClientManager(), this, newKey);
             getClientManager().sendLogMessage(Level.INFO, "Phase 1) Connection: " + socketChannel.getRemoteAddress() + " registered with id: " + socketData1.getId());
 
             newKey.attach(socketData1);
@@ -193,11 +188,6 @@ public class Server extends Listener {
         socketData.removeFirstDataSender();
         dataTransfer.setSocketState(SocketState.FINISH_OKAY);
         key.interestOps(SelectionKey.OP_READ);
-    }
-
-    @Override
-    public ServerSocketChannel getServerSocketChannel() {
-        return server;
     }
 
 }

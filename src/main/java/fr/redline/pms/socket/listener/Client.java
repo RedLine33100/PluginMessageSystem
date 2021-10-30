@@ -10,7 +10,6 @@ import fr.redline.pms.socket.manager.ClientManager;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.logging.Level;
 
@@ -33,12 +32,13 @@ public class Client extends Listener {
         }
 
         try {
-            startSelector();
+            startConnection();
 
-            SocketChannel channelSend = SocketChannel.open();
-            channelSend.connect(new InetSocketAddress(this.getIpInfo().getIp(), this.getIpInfo().getPort()));
+            SocketChannel socketChannel = (SocketChannel) getSocketChannel();
 
-            ServerConnectionData socketData = new ServerConnectionData(getClientManager(), channelSend.register(getSelector(), SelectionKey.OP_CONNECT));
+            socketChannel.connect(new InetSocketAddress(this.getIpInfo().getIp(), this.getIpInfo().getPort()));
+
+            ServerConnectionData socketData = new ServerConnectionData(getClientManager(), this, getSocketChannel().register(getSelector(), SelectionKey.OP_CONNECT));
 
             getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Connecting to: " + ipInfo);
             socketData.getSelectionKey().attach(socketData);
@@ -46,11 +46,11 @@ public class Client extends Listener {
 
             socketData.setPassword(accountPassword);
 
-            if (channelSend.finishConnect())
+            if (socketChannel.finishConnect())
                 startListener();
             else {
                 socketData.closeConnection();
-                closeSelector();
+                stopConnection();
                 socketData = null;
             }
 
@@ -63,11 +63,6 @@ public class Client extends Listener {
 
     public void addDataTransfer(ServerConnectionData socketData, DataTransfer dataTransfer) {
         socketData.addDataSender(dataTransfer);
-    }
-
-    @Override
-    public ServerSocketChannel getServerSocketChannel() {
-        return null;
     }
 
     public void onReadable(ConnectionData socketData, SelectionKey key) {
@@ -199,7 +194,7 @@ public class Client extends Listener {
     public void stop() {
         stopListener();
         try {
-            closeSelector();
+            stopConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }

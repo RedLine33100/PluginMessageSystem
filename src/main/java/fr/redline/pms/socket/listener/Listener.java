@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -16,6 +18,7 @@ import java.util.logging.Level;
 public abstract class Listener {
 
     Selector selector = null;
+    AbstractSelectableChannel socketChannel = null;
     ListenerType listenerType;
     ClientManager clientManager;
     IpInfo ipInfo = null;
@@ -41,8 +44,6 @@ public abstract class Listener {
     public void setIpInfo(IpInfo ipInfo) {
         this.ipInfo = ipInfo;
     }
-
-    public abstract ServerSocketChannel getServerSocketChannel();
 
     protected boolean logIn(ConnectionData socketData, String text) {
         if (socketData.getLinkState() == LinkState.LOGGED) {
@@ -103,20 +104,32 @@ public abstract class Listener {
         socketData.updateLastUse();
     }
 
-    protected void startSelector() throws IOException {
-        if(selector == null)
-        this.selector = Selector.open();
+    protected void startConnection() throws IOException {
+        if (selector == null)
+            this.selector = Selector.open();
+        if (this.socketChannel == null)
+            if (getListenerType() == ListenerType.CLIENT)
+                this.socketChannel = SocketChannel.open();
+            else this.socketChannel = ServerSocketChannel.open();
     }
 
-    protected void closeSelector() throws IOException {
-        if(this.selector != null){
+    protected void stopConnection() throws IOException {
+        if (this.selector != null) {
             this.selector.close();
             this.selector = null;
+        }
+        if (this.socketChannel != null) {
+            this.socketChannel.close();
+            this.socketChannel = null;
         }
     }
 
     protected Selector getSelector() {
         return this.selector;
+    }
+
+    protected AbstractSelectableChannel getSocketChannel() {
+        return this.socketChannel;
     }
 
     public abstract void onReadable(ConnectionData clientConnectionData, SelectionKey selectionKey);

@@ -28,7 +28,6 @@ public abstract class ConnectionData {
     public ConnectionData(ClientManager clientManager, Listener listener) {
         this.clientManager = clientManager;
         this.id = clientManager.getAutoStop().registerSocketData(this);
-        clientManager.addConnection(this);
         this.listener = listener;
     }
 
@@ -116,7 +115,6 @@ public abstract class ConnectionData {
                 dataTransfer.setSocketState(SocketState.FINISH_ERROR);
         }
         this.getDataTransferList().clear();
-        clientManager.removeConnection(this);
         this.getListener().notifyConnectionStop(this);
     }
 
