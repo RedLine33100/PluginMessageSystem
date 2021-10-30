@@ -80,7 +80,6 @@ public class Client extends Listener {
         }
 
         getClientManager().sendLogMessage(Level.FINE, socketData.getId() + ": Received: " + received);
-        socketData.updateLastUse();
 
         if (socketData.getLinkState() == LinkState.NOT_LOGGED) {
             getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Treat 1");

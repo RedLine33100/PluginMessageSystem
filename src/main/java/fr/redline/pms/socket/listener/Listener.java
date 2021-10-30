@@ -76,7 +76,6 @@ public abstract class Listener {
         socketData.setLinkState(authorized ? LinkState.LOGGED : LinkState.NOT_LOGGED);
         if (authorized) {
             getClientManager().sendLogMessage(Level.FINE, "Phase 2) Authing socket " + socketData.getId() + ", Socket logged");
-            socketData.updateLastUse();
             socketData.write("logOkay");
         } else {
             getClientManager().sendLogMessage(Level.SEVERE, "Phase 2) Authing socket " + socketData.getId() + ", Socket logging failed");
@@ -84,7 +83,6 @@ public abstract class Listener {
             socketData.closeConnection();
         }
         socketData.getSelectionKey().interestOps(SelectionKey.OP_READ);
-        socketData.updateLastUse();
         return authorized;
     }
 
@@ -98,10 +96,7 @@ public abstract class Listener {
             toSend = toSend + "null";
 
         clientManager.sendLogMessage(Level.INFO, socketData.getId() + ": Sending credential");
-        socketData.getSelectionKey().interestOps(SelectionKey.OP_WRITE);
         socketData.write(toSend);
-        socketData.getSelectionKey().interestOps(SelectionKey.OP_READ);
-        socketData.updateLastUse();
     }
 
     protected void startConnection() throws IOException {

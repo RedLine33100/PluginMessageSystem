@@ -129,6 +129,7 @@ public abstract class ConnectionData {
             return false;
         }
 
+        this.updateLastUse();
         getSelectionKey().interestOps(SelectionKey.OP_WRITE);
         this.clientManager.sendLogMessage(Level.INFO, "Writing on: " + getId() + " text: " + textToWrite);
         try {
@@ -154,6 +155,7 @@ public abstract class ConnectionData {
     public String read() {
         if (isSocketConnected()) {
             this.clientManager.sendLogMessage(Level.INFO, "Trying to read on: " + getId());
+            this.updateLastUse();
             try {
                 getSelectionKey().interestOps(SelectionKey.OP_READ);
                 ByteBuffer buffer = getByteBuffer();
