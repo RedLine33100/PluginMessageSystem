@@ -46,9 +46,10 @@ public class Client extends Listener {
 
             socketData.setPassword(accountPassword);
 
-            if (socketChannel.finishConnect())
+            if (socketChannel.isConnected() || socketChannel.finishConnect()) {
+                socketChannel.configureBlocking(false);
                 startListener();
-            else {
+            } else {
                 socketData.closeConnection();
                 stopConnection();
                 socketData = null;
