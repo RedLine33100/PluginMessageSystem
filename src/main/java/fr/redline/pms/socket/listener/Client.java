@@ -57,6 +57,7 @@ public class Client extends Listener {
             return socketData;
         } catch (IOException e) {
             e.printStackTrace();
+            stopConnection();
             return null;
         }
     }
@@ -193,11 +194,7 @@ public class Client extends Listener {
     @Override
     public void stop() {
         stopListener();
-        try {
-            stopConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        stopConnection();
     }
 
 }

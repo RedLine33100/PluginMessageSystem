@@ -113,13 +113,22 @@ public abstract class Listener {
             else this.socketChannel = ServerSocketChannel.open();
     }
 
-    protected void stopConnection() throws IOException {
+    protected void stopConnection() {
+        stopListener();
         if (this.selector != null) {
-            this.selector.close();
+            try {
+                this.selector.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             this.selector = null;
         }
         if (this.socketChannel != null) {
-            this.socketChannel.close();
+            try {
+                this.socketChannel.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             this.socketChannel = null;
         }
     }

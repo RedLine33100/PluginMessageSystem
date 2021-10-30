@@ -30,24 +30,7 @@ public class Server extends Listener {
     @Override
     public void stop() {
         getClientManager().sendLogMessage(Level.SEVERE, "Stopping serveur");
-        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) getSocketChannel();
-        if (serverSocketChannel != null) {
-            try {
-                this.stopConnection();
-            } catch (IOException ignore) {
-                if (serverState == ServerState.RUNNING)
-                    this.serverState = ServerState.STOP_ERROR;
-            }
-        }
-
-        stopListener();
-
-        try {
-            stopConnection();
-        } catch (IOException ignore) {
-            if (serverState == ServerState.RUNNING)
-                this.serverState = ServerState.STOP_ERROR;
-        }
+        stopConnection();
 
         if (serverState == ServerState.RUNNING)
             this.serverState = ServerState.STOP;
