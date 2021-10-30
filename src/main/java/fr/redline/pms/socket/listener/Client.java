@@ -6,7 +6,6 @@ import fr.redline.pms.socket.connection.ServerConnectionData;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
 import fr.redline.pms.socket.manager.ClientManager;
-import fr.redline.pms.utils.IpInfo;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -21,19 +20,23 @@ public class Client extends Listener {
         super(clientManager, ListenerType.CLIENT);
     }
 
-    public ServerConnectionData createConnection(IpInfo ipInfo, String account) {
+    public ServerConnectionData connect(String account) {
 
         String accountPassword = getClientManager().getCredentialClass().getEncryptedPassword(account);
 
         if (accountPassword == null)
             return null;
 
-        try {
+        if (getIpInfo() == null) {
+            getClientManager().sendLogMessage(Level.WARNING, "No Ip set, please use setIpInfo()");
+            return null;
+        }
 
+        try {
             startSelector();
 
             SocketChannel channelSend = SocketChannel.open();
-            channelSend.connect(new InetSocketAddress(ipInfo.getIp(), ipInfo.getPort()));
+            channelSend.connect(new InetSocketAddress(this.getIpInfo().getIp(), this.getIpInfo().getPort()));
 
             ServerConnectionData socketData = new ServerConnectionData(getClientManager(), channelSend.register(getSelector(), SelectionKey.OP_CONNECT));
 
@@ -45,6 +48,12 @@ public class Client extends Listener {
 
             if (channelSend.finishConnect())
                 startListener();
+            else {
+                socketData.closeConnection();
+                closeSelector();
+                socketData = null;
+            }
+
             return socketData;
         } catch (IOException e) {
             e.printStackTrace();
@@ -169,8 +178,6 @@ public class Client extends Listener {
                     getClientManager().sendLogMessage(Level.WARNING, socketData.getId() + ": Closing connection due to dataTransfer finish: CURRENTLY_EXECUTING_WRITE");
                     dataTransfer.setSocketState(SocketState.FINISH_OKAY);
                     socketData.removeFirstDataSender();
-                    if (socketData.getFirstDataSender() == null)
-                        socketData.closeConnection();
                 }
             }
         } else {
@@ -181,6 +188,21 @@ public class Client extends Listener {
     @Override
     public void onAcceptable() {
 
+    }
+
+    @Override
+    public void notifyConnectionStop(ConnectionData connectionData) {
+        stop();
+    }
+
+    @Override
+    public void stop() {
+        stopListener();
+        try {
+            closeSelector();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

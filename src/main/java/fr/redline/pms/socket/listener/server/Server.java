@@ -8,7 +8,6 @@ import fr.redline.pms.socket.inter.SocketState;
 import fr.redline.pms.socket.listener.Listener;
 import fr.redline.pms.socket.listener.ListenerType;
 import fr.redline.pms.socket.manager.ServerManager;
-import fr.redline.pms.utils.IpInfo;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -20,8 +19,6 @@ import java.util.logging.Level;
 
 public class Server extends Listener {
 
-    IpInfo ipInfo = null;
-
     /// Socket Needed
     ServerSocketChannel server = null;
 
@@ -32,23 +29,9 @@ public class Server extends Listener {
         super(serverManager, ListenerType.SERVER);
     }
 
-    public IpInfo getRunningIP() {
-        return ipInfo;
-    }
 
-    public boolean setRunningIP(IpInfo ipInfo) {
-        if (this.serverState == ServerState.RUNNING)
-            return false;
-        this.ipInfo = ipInfo;
-        if (ipInfo != null)
-            this.serverState = ServerState.STOP;
-        else this.serverState = ServerState.MISSING_BOUND;
-        return true;
-    }
-
-
-
-    public void stopServer() {
+    @Override
+    public void stop() {
         getClientManager().sendLogMessage(Level.SEVERE, "Stopping serveur");
 
         if (this.server != null) {
@@ -76,6 +59,11 @@ public class Server extends Listener {
 
     public boolean startServer() {
 
+        if (this.getIpInfo() == null) {
+            getClientManager().sendLogMessage(Level.WARNING, "No Ip set, please use setIpInfo()");
+            return false;
+        }
+
         getClientManager().sendLogMessage(Level.INFO, "Starting server");
         this.serverState = ServerState.STARTING;
 
@@ -84,7 +72,7 @@ public class Server extends Listener {
             startSelector();
             this.server = ServerSocketChannel.open();
 
-            this.server.bind(new InetSocketAddress(this.ipInfo.getIp(), this.ipInfo.getPort()));
+            this.server.bind(new InetSocketAddress(this.getIpInfo().getIp(), this.getIpInfo().getPort()));
 
             this.server.configureBlocking(false);
             this.server.register(getSelector(), this.server.validOps(), null);
@@ -98,7 +86,7 @@ public class Server extends Listener {
         } catch (IOException ioException) {
 
             this.serverState = ServerState.RUNNING_ERROR;
-            stopServer();
+            stop();
 
             return false;
 
@@ -129,9 +117,15 @@ public class Server extends Listener {
             socketData1.write("needMDP");
             newKey.interestOps(SelectionKey.OP_READ);
 
-        }catch (IOException ignored){
-
+        } catch (IOException ignored) {
+            this.serverState = ServerState.RUNNING_ERROR;
+            stop();
         }
+
+    }
+
+    @Override
+    public void notifyConnectionStop(ConnectionData connectionData) {
 
     }
 
@@ -205,4 +199,5 @@ public class Server extends Listener {
     public ServerSocketChannel getServerSocketChannel() {
         return server;
     }
+
 }

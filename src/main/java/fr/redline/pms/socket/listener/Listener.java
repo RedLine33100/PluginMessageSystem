@@ -3,6 +3,7 @@ package fr.redline.pms.socket.listener;
 import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.socket.connection.LinkState;
 import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.utils.IpInfo;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -17,6 +18,7 @@ public abstract class Listener {
     Selector selector = null;
     ListenerType listenerType;
     ClientManager clientManager;
+    IpInfo ipInfo = null;
     Timer timer = new Timer();
 
     public Listener(ClientManager clientManager, ListenerType listenerType){
@@ -24,12 +26,20 @@ public abstract class Listener {
         this.listenerType = listenerType;
     }
 
-    public ClientManager getClientManager(){
+    public ClientManager getClientManager() {
         return clientManager;
     }
 
-    public ListenerType getListenerType(){
+    public ListenerType getListenerType() {
         return listenerType;
+    }
+
+    public IpInfo getIpInfo() {
+        return ipInfo;
+    }
+
+    public void setIpInfo(IpInfo ipInfo) {
+        this.ipInfo = ipInfo;
     }
 
     public abstract ServerSocketChannel getServerSocketChannel();
@@ -72,7 +82,7 @@ public abstract class Listener {
             socketData.write("logWrong");
             socketData.closeConnection();
         }
-        socketData.getSelectionKey().interestOps(1);
+        socketData.getSelectionKey().interestOps(SelectionKey.OP_READ);
         socketData.updateLastUse();
         return authorized;
     }
@@ -105,7 +115,7 @@ public abstract class Listener {
         }
     }
 
-    protected Selector getSelector(){
+    protected Selector getSelector() {
         return this.selector;
     }
 
@@ -115,7 +125,11 @@ public abstract class Listener {
 
     public abstract void onAcceptable();
 
-    protected void startListener(){
+    public abstract void notifyConnectionStop(ConnectionData connectionData);
+
+    public abstract void stop();
+
+    protected void startListener() {
 
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -124,7 +138,7 @@ public abstract class Listener {
                 try {
                     getSelector().select();
 
-                    for(SelectionKey selectionKey : getSelector().selectedKeys()){
+                    for (SelectionKey selectionKey : getSelector().selectedKeys()) {
                         if (getListenerType() == ListenerType.SERVER && selectionKey.isAcceptable()) {
                             onAcceptable();
                             continue;

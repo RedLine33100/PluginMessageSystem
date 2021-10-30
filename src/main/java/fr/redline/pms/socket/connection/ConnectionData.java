@@ -2,6 +2,7 @@ package fr.redline.pms.socket.connection;
 
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
+import fr.redline.pms.socket.listener.Listener;
 import fr.redline.pms.socket.manager.ClientManager;
 
 import java.io.IOException;
@@ -21,12 +22,14 @@ public abstract class ConnectionData {
     private Object attachment = null;
     private String account = null;
     private LinkState linkState = LinkState.NOT_LOGGED;
+    private final Listener listener;
     private long lastDataMillis = System.currentTimeMillis();
 
-    public ConnectionData(ClientManager clientManager) {
+    public ConnectionData(ClientManager clientManager, Listener listener) {
         this.clientManager = clientManager;
         this.id = clientManager.getAutoStop().registerSocketData(this);
         clientManager.addConnection(this);
+        this.listener = listener;
     }
 
     public int getId() {
@@ -41,6 +44,10 @@ public abstract class ConnectionData {
 
     public LinkState getLinkState() {
         return this.linkState;
+    }
+
+    public Listener getListener() {
+        return listener;
     }
 
     public void setLinkState(LinkState linkState) {
@@ -94,6 +101,8 @@ public abstract class ConnectionData {
     }
 
     public void closeConnection() {
+        if (!isSocketConnected())
+            return;
         getSocketGestion().sendLogMessage(Level.WARNING, "Closing socketData");
         getSelectionKey().cancel();
         try {
@@ -108,6 +117,7 @@ public abstract class ConnectionData {
         }
         this.getDataTransferList().clear();
         clientManager.removeConnection(this);
+        this.getListener().notifyConnectionStop(this);
     }
 
     public boolean isSocketConnected() {
