@@ -153,25 +153,28 @@ public abstract class ConnectionData {
     }
 
     public String read() {
-        if (isSocketConnected()) {
-            this.clientManager.sendLogMessage(Level.INFO, "Trying to read on: " + getId());
-            this.updateLastUse();
-            try {
-                getSelectionKey().interestOps(SelectionKey.OP_READ);
-                ByteBuffer buffer = getByteBuffer();
-                buffer.clear();
-                int readBytes = getSocketChannel().read(buffer);
-                if (readBytes <= 0)
-                    return null;
-                buffer.flip();
-                String text = new String(buffer.array()).trim();
-                this.clientManager.sendLogMessage(Level.FINE, "Message: " + text + " readed on: " + getId());
-                return text;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else
+
+        if (!isSocketConnected()) {
             this.clientManager.sendLogMessage(Level.SEVERE, "Message cannot be read on: " + getId() + " Socket not connected");
+            return null;
+        }
+
+        this.clientManager.sendLogMessage(Level.INFO, "Trying to read on: " + getId());
+        this.updateLastUse();
+        try {
+            getSelectionKey().interestOps(SelectionKey.OP_READ);
+            ByteBuffer buffer = getByteBuffer();
+            buffer.clear();
+            int readBytes = getSocketChannel().read(buffer);
+            if (readBytes <= 0)
+                return null;
+            buffer.flip();
+            String text = new String(buffer.array()).trim();
+            this.clientManager.sendLogMessage(Level.FINE, "Message: " + text + " readed on: " + getId());
+            return text;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
