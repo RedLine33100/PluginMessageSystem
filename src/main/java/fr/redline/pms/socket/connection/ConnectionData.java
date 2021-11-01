@@ -100,7 +100,7 @@ public abstract class ConnectionData {
     }
 
     public String encrypt(String data) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, getPublicKey());
         return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
     }
