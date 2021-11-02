@@ -1,8 +1,5 @@
 package fr.redline.pms.utils;
 
-import com.google.common.hash.Hashing;
-
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public class CredentialClass {
@@ -35,8 +32,7 @@ public class CredentialClass {
     public boolean addCredential(String name, String password) {
         if (hasCredential(name))
             return false;
-        String sha256hex = Hashing.sha256().hashString(password, StandardCharsets.UTF_8).toString();
-        this.credential.put(name, sha256hex);
+        this.credential.put(name, password);
         return true;
     }
 
