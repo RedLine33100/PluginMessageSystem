@@ -51,7 +51,7 @@ public class Server extends Listener {
             startConnection();
             ServerSocketChannel server = (ServerSocketChannel) getSocketChannel();
 
-            server.bind(new InetSocketAddress(this.getIpInfo().getIp(false), this.getIpInfo().getPort()));
+            server.bind(new InetSocketAddress(this.getIpInfo().getIp(), this.getIpInfo().getPort()));
 
             server.configureBlocking(false);
             server.register(getSelector(), server.validOps(), null);
