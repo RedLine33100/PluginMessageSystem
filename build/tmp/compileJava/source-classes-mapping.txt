@@ -1,42 +1,47 @@
-fr/redline/pms/connect/linker/inter/DataTransfer.java
- fr.redline.pms.connect.linker.inter.DataTransfer
- fr.redline.pms.connect.linker.inter.DataTransfer$1
-fr/redline/pms/connect/linker/pm/PMConnectClient.java
- fr.redline.pms.connect.linker.pm.PMConnectClient
-fr/redline/pms/connect/linker/pm/PMInstanceCreator.java
- fr.redline.pms.connect.linker.pm.PMInstanceCreator
-fr/redline/pms/connect/linker/thread/Server.java
- fr.redline.pms.connect.linker.thread.Server
-fr/redline/pms/connect/linker/pm/RabbitPMManager.java
- fr.redline.pms.connect.linker.pm.RabbitPMManager
-fr/redline/pms/connect/linker/inter/InstanceCreator.java
- fr.redline.pms.connect.linker.inter.InstanceCreator
-fr/redline/pms/connect/autostop/AutoStopSyst.java
- fr.redline.pms.connect.autostop.AutoStopSyst
+fr/redline/pms/socket/connection/ConnectionData.java
+ fr.redline.pms.socket.connection.ConnectionData
+fr/redline/pms/socket/listener/ListenerType.java
+ fr.redline.pms.socket.listener.ListenerType
+fr/redline/pms/socket/connection/ClientConnectionData.java
+ fr.redline.pms.socket.connection.ClientConnectionData
+fr/redline/pms/socket/inter/InstanceCreator.java
+ fr.redline.pms.socket.inter.InstanceCreator
+fr/redline/pms/pm/RedisPMManager.java
+ fr.redline.pms.pm.RedisPMManager
 fr/redline/pms/utils/IpInfo.java
  fr.redline.pms.utils.IpInfo
-fr/redline/pms/connect/linker/ReceiverManager.java
- fr.redline.pms.connect.linker.ReceiverManager
- fr.redline.pms.connect.linker.ReceiverManager$Memorizer
+fr/redline/pms/socket/listener/Listener.java
+ fr.redline.pms.socket.listener.Listener
+ fr.redline.pms.socket.listener.Listener$1
 fr/redline/pms/utils/SystemColor.java
  fr.redline.pms.utils.SystemColor
-fr/redline/pms/connect/linker/pm/RedisPMManager.java
- fr.redline.pms.connect.linker.pm.RedisPMManager
-fr/redline/pms/connect/linker/SocketGestion.java
- fr.redline.pms.connect.linker.SocketGestion
-fr/redline/pms/connect/linker/thread/SocketData.java
- fr.redline.pms.connect.linker.thread.SocketData
+fr/redline/pms/pm/RabbitPMManager.java
+ fr.redline.pms.pm.RabbitPMManager
+fr/redline/pms/socket/manager/ClientManager.java
+ fr.redline.pms.socket.manager.ClientManager
+fr/redline/pms/socket/manager/ServerManager.java
+ fr.redline.pms.socket.manager.ServerManager
+ fr.redline.pms.socket.manager.ServerManager$Memorize
+fr/redline/pms/socket/listener/Client.java
+ fr.redline.pms.socket.listener.Client
+fr/redline/pms/pm/PMReceiver.java
+ fr.redline.pms.pm.PMReceiver
+fr/redline/pms/socket/inter/DataTransfer.java
+ fr.redline.pms.socket.inter.DataTransfer
+ fr.redline.pms.socket.inter.DataTransfer$1
+fr/redline/pms/socket/listener/server/Server.java
+ fr.redline.pms.socket.listener.server.Server
 fr/redline/pms/utils/GSONSaver.java
  fr.redline.pms.utils.GSONSaver
+fr/redline/pms/socket/connection/LinkState.java
+ fr.redline.pms.socket.connection.LinkState
 fr/redline/pms/utils/CredentialClass.java
  fr.redline.pms.utils.CredentialClass
-fr/redline/pms/connect/linker/pm/PMConnectServer.java
- fr.redline.pms.connect.linker.pm.PMConnectServer
-fr/redline/pms/connect/linker/inter/SocketState.java
- fr.redline.pms.connect.linker.inter.SocketState
-fr/redline/pms/connect/linker/pm/PMManager.java
- fr.redline.pms.connect.linker.pm.PMManager
-fr/redline/pms/connect/linker/pm/PMReceiver.java
- fr.redline.pms.connect.linker.pm.PMReceiver
-fr/redline/pms/connect/linker/thread/Client.java
- fr.redline.pms.connect.linker.thread.Client
+fr/redline/pms/socket/manager/AutoStopSyst.java
+ fr.redline.pms.socket.manager.AutoStopSyst
+fr/redline/pms/socket/connection/ServerConnectionData.java
+ fr.redline.pms.socket.connection.ServerConnectionData
+fr/redline/pms/socket/inter/SocketState.java
+ fr.redline.pms.socket.inter.SocketState
+fr/redline/pms/socket/listener/server/ServerState.java
+ fr.redline.pms.socket.listener.server.ServerState

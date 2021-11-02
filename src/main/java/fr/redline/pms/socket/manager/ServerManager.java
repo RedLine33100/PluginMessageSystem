@@ -1,13 +1,10 @@
 package fr.redline.pms.socket.manager;
 
-import fr.redline.pms.pm.PMConnectServer;
-import fr.redline.pms.pm.PMInstanceCreator;
 import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.InstanceCreator;
 import fr.redline.pms.socket.listener.server.Server;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
 public class ServerManager extends ClientManager {
@@ -18,7 +15,6 @@ public class ServerManager extends ClientManager {
     public ServerManager(boolean log) {
         super(log, "<ssplit>", "<pmsplit>", "Server: ");
         this.serverSocketReceiver = new Server(this);
-        setSocketReceiver("pm", new PMInstanceCreator(), PMConnectServer.class);
     }
 
     public Server getServer(){
@@ -44,14 +40,6 @@ public class ServerManager extends ClientManager {
 
     public void removeSocketReceiver(String title) {
         this.socketReceiverHashMap.remove(title);
-    }
-
-    private boolean checkHasParameter(Class<? extends DataTransfer> javaClass, Integer number) {
-        Constructor<?>[] arrayOfConstructor = javaClass.getDeclaredConstructors();
-        for (Constructor<?> ctor : arrayOfConstructor)
-            if ((ctor.getParameterTypes()).length == number)
-                return true;
-        return false;
     }
 
     private static class Memorize {

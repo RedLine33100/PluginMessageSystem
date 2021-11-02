@@ -36,7 +36,7 @@ public class Client extends Listener {
 
             SocketChannel socketChannel = (SocketChannel) getSocketChannel();
 
-            socketChannel.connect(new InetSocketAddress(this.getIpInfo().getIp(), this.getIpInfo().getPort()));
+            socketChannel.connect(new InetSocketAddress(this.getIpInfo().getIp(false), this.getIpInfo().getPort()));
 
             ServerConnectionData socketData = new ServerConnectionData(getClientManager(), this, getSocketChannel().register(getSelector(), SelectionKey.OP_CONNECT));
 
@@ -183,7 +183,7 @@ public class Client extends Listener {
 
     @Override
     public void onAcceptable() {
-
+        // Not a server, so useless
     }
 
     @Override

@@ -90,6 +90,7 @@ public abstract class ConnectionData {
             e.printStackTrace();
         }
         try {
+            assert factory != null;
             this.publicKey = factory.generatePublic(new X509EncodedKeySpec(byte_pubkey));
             return true;
         } catch (InvalidKeySpecException e) {
@@ -125,7 +126,7 @@ public abstract class ConnectionData {
         this.attachment = attachment;
     }
 
-    public ClientManager getSocketGestion() {
+    public ClientManager getClientManager() {
         return clientManager;
     }
 
@@ -160,7 +161,7 @@ public abstract class ConnectionData {
     public void closeConnection() {
         if (!isSocketConnected())
             return;
-        getSocketGestion().sendLogMessage(Level.WARNING, "Closing socketData");
+        getClientManager().sendLogMessage(Level.WARNING, "Closing socketData");
         getSelectionKey().cancel();
         try {
             getSocketChannel().close();

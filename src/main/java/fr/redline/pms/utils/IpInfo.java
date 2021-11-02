@@ -2,34 +2,34 @@ package fr.redline.pms.utils;
 
 public class IpInfo {
     private final String ip;
-    private final Integer port;
 
     public IpInfo(String ip, Integer port) {
+        this.ip = ip + port;
+    }
+
+    public IpInfo(String ip) {
         this.ip = ip;
-        this.port = port;
     }
 
-    public static IpInfo fromString(String string) {
-        String[] ipSplit = string.split(":");
-        return new IpInfo(ipSplit[0], Integer.valueOf(ipSplit[1]));
-    }
-
-    public String getIp() {
-        return this.ip;
+    public String getIp(boolean port) {
+        if (port)
+            return this.ip;
+        return ip.split(":")[0];
     }
 
     public Integer getPort() {
-        return this.port;
+        String[] stringSplit = ip.split(":");
+        if (stringSplit.length != 2)
+            return null;
+        return Integer.parseInt(stringSplit[1]);
     }
 
     public boolean equals(IpInfo ipInfo) {
-        String one = this.ip + ":" + this.port;
-        String second = ipInfo.getIp() + ":" + ipInfo.getPort();
-        return one.equals(second);
+        return ip.equals(ipInfo.toString());
     }
 
     public String toString() {
-        return this.ip + ":" + this.port;
+        return this.ip;
     }
 
 }

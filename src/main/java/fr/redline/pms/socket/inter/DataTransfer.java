@@ -33,7 +33,7 @@ public abstract class DataTransfer {
     }
 
     public boolean isSocketState(SocketState socketState) {
-        return getSocketState().getName().equals(socketState.getName());
+        return getSocketState() == socketState;
     }
 
     public ConnectionData getConnection() {
