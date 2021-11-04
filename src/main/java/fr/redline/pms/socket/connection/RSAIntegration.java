@@ -71,7 +71,7 @@ public class RSAIntegration {
         return privateKey;
     }
 
-    public void setPrivateKey(PrivateKey publicKey) {
+    public void setPrivateKey(PrivateKey privateKey) {
         this.privateKey = privateKey;
     }
 
