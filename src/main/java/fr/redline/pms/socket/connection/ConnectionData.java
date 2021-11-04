@@ -5,44 +5,29 @@ import fr.redline.pms.socket.inter.SocketState;
 import fr.redline.pms.socket.listener.Listener;
 import fr.redline.pms.socket.manager.ClientManager;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.logging.Level;
 
-public abstract class ConnectionData {
+public abstract class ConnectionData extends RSAIntegration {
 
     private final ClientManager clientManager;
     private final int id;
     private final ByteBuffer byteBuffer = ByteBuffer.allocate(256);
     private final List<DataTransfer> dataTransferList = new ArrayList<>();
     private final SelectionKey selectionKey;
-    private PublicKey publicKey = null;
     private Object attachment = null;
     private String account = null;
     private LinkState linkState = LinkState.NOT_LOGGED;
     private final Listener listener;
     private long lastDataMillis = System.currentTimeMillis();
 
-    private boolean encrypt;
-
-    public ConnectionData(ClientManager clientManager, Listener listener, SelectionKey selectionKey, boolean encrypt) {
+    public ConnectionData(ClientManager clientManager, Listener listener, SelectionKey selectionKey) {
         this.clientManager = clientManager;
-        this.encrypt = encrypt;
         this.id = clientManager.getAutoStop().registerSocketData(this);
         this.selectionKey = selectionKey;
         this.listener = listener;
@@ -66,57 +51,6 @@ public abstract class ConnectionData {
 
     public SelectionKey getSelectionKey() {
         return this.selectionKey;
-    }
-
-    public PublicKey getPublicKey() {
-        return publicKey;
-    }
-
-    public void setPublicKey(PublicKey publicKey) {
-        this.publicKey = publicKey;
-        setEncrypt(this.publicKey != null);
-    }
-
-    public String getPublicKeyString() {
-        if (getPublicKey() == null)
-            return null;
-        return Base64.getEncoder().encodeToString(getPublicKey().getEncoded());
-    }
-
-    public boolean setPublicKey(String publicKey) {
-
-        byte[] byte_pubkey = Base64.getDecoder().decode(publicKey);
-
-        KeyFactory factory = null;
-        try {
-            factory = KeyFactory.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        try {
-            assert factory != null;
-            setPublicKey(factory.generatePublic(new X509EncodedKeySpec(byte_pubkey)));
-            return true;
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    public boolean isEncrypt() {
-        return encrypt;
-    }
-
-    public void setEncrypt(boolean encrypt) {
-        this.encrypt = encrypt;
-    }
-
-    public String encrypt(String data) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-        if (!isEncrypt()) return data;
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, getPublicKey());
-        return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
     }
 
     public void setLinkState(LinkState linkState) {
