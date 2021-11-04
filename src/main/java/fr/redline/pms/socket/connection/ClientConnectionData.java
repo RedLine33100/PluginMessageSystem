@@ -2,6 +2,7 @@ package fr.redline.pms.socket.connection;
 
 import fr.redline.pms.socket.listener.Listener;
 import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.socket.manager.ServerManager;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -20,7 +21,9 @@ public class ClientConnectionData extends ConnectionData {
     KeyPair keyPair;
 
     public ClientConnectionData(ClientManager clientManager, Listener listener, SelectionKey selectionKey) {
-        super(clientManager, listener, selectionKey);
+        super(clientManager, listener, selectionKey, ((ServerManager) clientManager).getEncrypt());
+        if (!isEncrypt())
+            return;
         KeyPairGenerator keyPairGenerator;
         try {
             keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -38,12 +41,14 @@ public class ClientConnectionData extends ConnectionData {
     }
 
     public String decrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        if (!isEncrypt() || keyPair == null) return Base64.getEncoder().encodeToString(data);
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.DECRYPT_MODE, getKeyPair().getPrivate());
         return new String(cipher.doFinal(data));
     }
 
     public String decrypt(String data) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
+        if (!isEncrypt()) return data;
         return decrypt(Base64.getDecoder().decode(data.getBytes()));
     }
 

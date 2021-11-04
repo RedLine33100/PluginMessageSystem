@@ -15,7 +15,7 @@ public class ServerConnectionData extends ConnectionData {
     private String pass = null;
 
     public ServerConnectionData(ClientManager clientManager, Listener listener, SelectionKey selectionKey) {
-        super(clientManager, listener, selectionKey);
+        super(clientManager, listener, selectionKey, false);
     }
 
     public boolean isSocketConnected() {

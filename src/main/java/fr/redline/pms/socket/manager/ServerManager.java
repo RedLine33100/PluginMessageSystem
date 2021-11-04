@@ -11,13 +11,19 @@ public class ServerManager extends ClientManager {
 
     private final HashMap<String, Memorize> socketReceiverHashMap = new HashMap<>();
     private final Server serverSocketReceiver;
+    private final boolean crypt;
 
-    public ServerManager(boolean log) {
+    public ServerManager(boolean crypt, boolean log) {
         super(log, "<ssplit>", "<pmsplit>", "Server: ");
+        this.crypt = crypt;
         this.serverSocketReceiver = new Server(this);
     }
 
-    public Server getServer(){
+    public boolean getEncrypt() {
+        return crypt;
+    }
+
+    public Server getServer() {
         return serverSocketReceiver;
     }
 

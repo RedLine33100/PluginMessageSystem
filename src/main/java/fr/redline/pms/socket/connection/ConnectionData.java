@@ -38,8 +38,11 @@ public abstract class ConnectionData {
     private final Listener listener;
     private long lastDataMillis = System.currentTimeMillis();
 
-    public ConnectionData(ClientManager clientManager, Listener listener, SelectionKey selectionKey) {
+    private boolean encrypt;
+
+    public ConnectionData(ClientManager clientManager, Listener listener, SelectionKey selectionKey, boolean encrypt) {
         this.clientManager = clientManager;
+        this.encrypt = encrypt;
         this.id = clientManager.getAutoStop().registerSocketData(this);
         this.selectionKey = selectionKey;
         this.listener = listener;
@@ -71,6 +74,7 @@ public abstract class ConnectionData {
 
     public void setPublicKey(PublicKey publicKey) {
         this.publicKey = publicKey;
+        setEncrypt(this.publicKey != null);
     }
 
     public String getPublicKeyString() {
@@ -91,7 +95,7 @@ public abstract class ConnectionData {
         }
         try {
             assert factory != null;
-            this.publicKey = factory.generatePublic(new X509EncodedKeySpec(byte_pubkey));
+            setPublicKey(factory.generatePublic(new X509EncodedKeySpec(byte_pubkey)));
             return true;
         } catch (InvalidKeySpecException e) {
             e.printStackTrace();
@@ -100,7 +104,16 @@ public abstract class ConnectionData {
         return false;
     }
 
+    public boolean isEncrypt() {
+        return encrypt;
+    }
+
+    public void setEncrypt(boolean encrypt) {
+        this.encrypt = encrypt;
+    }
+
     public String encrypt(String data) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+        if (!isEncrypt()) return data;
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, getPublicKey());
         return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
