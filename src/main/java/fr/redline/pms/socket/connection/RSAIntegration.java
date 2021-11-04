@@ -104,9 +104,13 @@ public class RSAIntegration {
 
 
     public String encrypt(String data) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-        if (getPublicKey() == null && privateKey == null) return data;
+        if (getPublicKey() == null && getPrivateKey() == null) return data;
         Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, getPublicKey());
+        Key key;
+        if (getPrivateKey() != null)
+            key = getPrivateKey();
+        else key = getPublicKey();
+        cipher.init(Cipher.ENCRYPT_MODE, key);
         return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
     }
 
