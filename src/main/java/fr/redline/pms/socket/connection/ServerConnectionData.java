@@ -16,6 +16,7 @@ public class ServerConnectionData extends ConnectionData {
 
     public ServerConnectionData(ClientManager clientManager, Listener listener, SelectionKey selectionKey) {
         super(clientManager, listener, selectionKey);
+        super.setCryptState(CryptState.WAIT_RECEIVE);
     }
 
     public boolean isSocketConnected() {

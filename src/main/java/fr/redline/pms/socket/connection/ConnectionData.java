@@ -23,6 +23,7 @@ public abstract class ConnectionData extends RSAIntegration {
     private Object attachment = null;
     private String account = null;
     private LinkState linkState = LinkState.NOT_LOGGED;
+
     private final Listener listener;
     private long lastDataMillis = System.currentTimeMillis();
 
@@ -37,12 +38,12 @@ public abstract class ConnectionData extends RSAIntegration {
         return id;
     }
 
-    public ByteBuffer getByteBuffer() {
-        return byteBuffer;
+    public ClientManager getClientManager() {
+        return clientManager;
     }
 
-    public LinkState getLinkState() {
-        return this.linkState;
+    public ByteBuffer getByteBuffer() {
+        return byteBuffer;
     }
 
     public Listener getListener() {
@@ -53,9 +54,10 @@ public abstract class ConnectionData extends RSAIntegration {
         return this.selectionKey;
     }
 
-    public void setLinkState(LinkState linkState) {
-        this.linkState = linkState;
+    public SocketChannel getSocketChannel() {
+        return (SocketChannel) getSelectionKey().channel();
     }
+
 
     public void updateLastUse() {
         this.lastDataMillis = System.currentTimeMillis();
@@ -65,6 +67,17 @@ public abstract class ConnectionData extends RSAIntegration {
         return this.lastDataMillis;
     }
 
+
+    public LinkState getLinkState() {
+        return this.linkState;
+    }
+
+    public void setLinkState(LinkState linkState) {
+        this.linkState = linkState;
+    }
+
+
+
     public Object getAttachment() {
         return attachment;
     }
@@ -73,9 +86,7 @@ public abstract class ConnectionData extends RSAIntegration {
         this.attachment = attachment;
     }
 
-    public ClientManager getClientManager() {
-        return clientManager;
-    }
+
 
     public String getAccount() {
         return this.account;
@@ -85,9 +96,7 @@ public abstract class ConnectionData extends RSAIntegration {
         this.account = account;
     }
 
-    public SocketChannel getSocketChannel() {
-        return (SocketChannel) getSelectionKey().channel();
-    }
+
 
     public DataTransfer getFirstDataSender() {
         if (this.dataTransferList.isEmpty())
@@ -104,6 +113,7 @@ public abstract class ConnectionData extends RSAIntegration {
     public List<DataTransfer> getDataTransferList() {
         return dataTransferList;
     }
+
 
     public void closeConnection() {
         if (!isSocketConnected())
@@ -141,6 +151,8 @@ public abstract class ConnectionData extends RSAIntegration {
         try {
             ByteBuffer buffer = getByteBuffer();
             buffer.clear();
+            if (getCryptState() == CryptState.RECEIVE || getCryptState() == CryptState.SEND)
+                textToWrite = encrypt(textToWrite);
             buffer.put(textToWrite.getBytes());
             buffer.flip();
             while (buffer.hasRemaining()) {
@@ -176,6 +188,8 @@ public abstract class ConnectionData extends RSAIntegration {
                 return null;
             buffer.flip();
             String text = new String(buffer.array()).trim();
+            if (getCryptState() == CryptState.RECEIVE || getCryptState() == CryptState.SEND)
+                text = decrypt(text);
             this.clientManager.sendLogMessage(Level.FINE, "Message: " + text + " readed on: " + getId());
             return text;
         } catch (IOException e) {

@@ -13,6 +13,15 @@ public class RSAIntegration {
 
     private PublicKey publicKey = null;
     private PrivateKey privateKey = null;
+    private CryptState cryptState = CryptState.WAIT_SEND;
+
+    public CryptState getCryptState() {
+        return cryptState;
+    }
+
+    public void setCryptState(CryptState cryptState) {
+        this.cryptState = cryptState;
+    }
 
     public KeyPair generateKeyPair(boolean set) {
         KeyPair keyPair = null;
@@ -103,27 +112,44 @@ public class RSAIntegration {
     }
 
 
-    public String encrypt(String data) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+    public String encrypt(String data) {
         if (getPublicKey() == null && getPrivateKey() == null) return data;
-        Cipher cipher = Cipher.getInstance("RSA");
-        Key key;
-        if (getPrivateKey() != null)
-            key = getPrivateKey();
-        else key = getPublicKey();
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            Key key;
+            if (getPrivateKey() != null)
+                key = getPrivateKey();
+            else key = getPublicKey();
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
+        } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public String decrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    public String decrypt(byte[] data) {
         if (getPrivateKey() == null) return Base64.getEncoder().encodeToString(data);
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher.init(Cipher.DECRYPT_MODE, getPrivateKey());
-        return new String(cipher.doFinal(data));
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, getPrivateKey());
+            return new String(cipher.doFinal(data));
+        } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public String decrypt(String data) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
+    public String decrypt(String data) {
         if (getPrivateKey() == null) return data;
         return decrypt(Base64.getDecoder().decode(data.getBytes()));
+    }
+
+    public enum CryptState {
+        WAIT_SEND,
+        WAIT_RECEIVE,
+        SEND,
+        RECEIVE
     }
 
 }
