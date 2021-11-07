@@ -1,5 +1,6 @@
 package fr.redline.pms.socket.connection;
 
+import fr.redline.pms.socket.credential.Credential;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
 import fr.redline.pms.socket.listener.Listener;
@@ -21,8 +22,7 @@ public abstract class ConnectionData extends RSAIntegration {
     private final List<DataTransfer> dataTransferList = new ArrayList<>();
     private final SelectionKey selectionKey;
     private Object attachment = null;
-    private String account = null;
-    private LinkState linkState = LinkState.NOT_LOGGED;
+    private Credential credential = null;
 
     private final Listener listener;
     private long lastDataMillis = System.currentTimeMillis();
@@ -68,16 +68,6 @@ public abstract class ConnectionData extends RSAIntegration {
     }
 
 
-    public LinkState getLinkState() {
-        return this.linkState;
-    }
-
-    public void setLinkState(LinkState linkState) {
-        this.linkState = linkState;
-    }
-
-
-
     public Object getAttachment() {
         return attachment;
     }
@@ -87,15 +77,13 @@ public abstract class ConnectionData extends RSAIntegration {
     }
 
 
-
-    public String getAccount() {
-        return this.account;
+    public Credential getCredential() {
+        return this.credential;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setCredential(Credential credential) {
+        this.credential = credential;
     }
-
 
 
     public DataTransfer getFirstDataSender() {

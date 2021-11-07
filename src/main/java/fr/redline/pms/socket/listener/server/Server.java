@@ -2,7 +2,6 @@ package fr.redline.pms.socket.listener.server;
 
 import fr.redline.pms.socket.connection.ClientConnectionData;
 import fr.redline.pms.socket.connection.ConnectionData;
-import fr.redline.pms.socket.connection.LinkState;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
 import fr.redline.pms.socket.listener.Listener;
@@ -114,7 +113,7 @@ public class Server extends Listener {
         if (text == null)
             return;
 
-        if (socketData.getLinkState() == LinkState.NOT_LOGGED) {
+        if (socketData.getCredential() == null) {
             getClientManager().sendLogMessage(Level.INFO, "Phase 2) Received auth from: " + socketData.getId());
             logIn(socketData, text);
             return;

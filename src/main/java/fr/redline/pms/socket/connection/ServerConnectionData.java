@@ -9,10 +9,10 @@ import java.nio.channels.SelectionKey;
 public class ServerConnectionData extends ConnectionData {
 
     /*
-    Use on server Side
+        Use by fr.redline.pms.socket.listener.Client
      */
 
-    private String pass = null;
+    LinkState linkState = LinkState.NOT_LOGGED;
 
     public ServerConnectionData(ClientManager clientManager, Listener listener, SelectionKey selectionKey) {
         super(clientManager, listener, selectionKey);
@@ -23,16 +23,22 @@ public class ServerConnectionData extends ConnectionData {
         return this.getSocketChannel().isOpen();
     }
 
-    public String getPassword() {
-        return this.pass;
-    }
-
-    public void setPassword(String pass) {
-        this.pass = pass;
-    }
-
     public void addDataSender(DataTransfer dataTransfer) {
         getDataTransferList().add(dataTransfer);
+    }
+
+    public LinkState getLinkState() {
+        return this.linkState;
+    }
+
+    public void setLinkState(LinkState linkState) {
+        this.linkState = linkState;
+    }
+
+    public enum LinkState {
+        NOT_LOGGED,
+        FAILED,
+        LOGGED
     }
 
 }

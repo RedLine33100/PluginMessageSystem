@@ -1,8 +1,8 @@
 package fr.redline.pms.socket.listener;
 
 import fr.redline.pms.socket.connection.ConnectionData;
-import fr.redline.pms.socket.connection.LinkState;
 import fr.redline.pms.socket.connection.ServerConnectionData;
+import fr.redline.pms.socket.credential.Credential;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
 import fr.redline.pms.socket.manager.ClientManager;
@@ -19,11 +19,9 @@ public class Client extends Listener {
         super(clientManager, ListenerType.CLIENT);
     }
 
-    public ServerConnectionData connect(String account) {
+    public ServerConnectionData connect(Credential credential) {
 
-        String accountPassword = getClientManager().getCredentialClass().getEncryptedPassword(account);
-
-        if (accountPassword == null)
+        if (credential == null)
             return null;
 
         if (getIpInfo() == null) {
@@ -42,16 +40,13 @@ public class Client extends Listener {
 
             getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Connecting to: " + ipInfo);
             socketData.getSelectionKey().attach(socketData);
-            socketData.setAccount(account);
-
-            socketData.setPassword(accountPassword);
+            socketData.setCredential(credential);
 
             if (socketChannel.isConnected() || socketChannel.finishConnect()) {
                 socketChannel.configureBlocking(false);
                 startListener();
             } else {
                 socketData.closeConnection();
-                stopConnection();
                 socketData = null;
             }
 
@@ -73,6 +68,8 @@ public class Client extends Listener {
             return;
         }
 
+        ServerConnectionData serverConnectionData = (ServerConnectionData) socketData;
+
         String received = socketData.read();
         if (received == null) {
             getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Received: null");
@@ -81,23 +78,23 @@ public class Client extends Listener {
 
         getClientManager().sendLogMessage(Level.FINE, socketData.getId() + ": Received: " + received);
 
-        if (socketData.getLinkState() == LinkState.NOT_LOGGED) {
+        if (serverConnectionData.getLinkState() == ServerConnectionData.LinkState.NOT_LOGGED) {
             getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Treat 1");
             switch (received) {
                 case "needMDP": {
                     getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Sending credential");
-                    sendCredential(socketData, ((ServerConnectionData) socketData).getPassword());
+                    sendCredential(socketData);
                     break;
                 }
                 case "logOkay": {
                     getClientManager().sendLogMessage(Level.FINE, socketData.getId() + ": Registration Okay");
-                    socketData.setLinkState(LinkState.LOGGED);
+                    serverConnectionData.setLinkState(ServerConnectionData.LinkState.LOGGED);
                     key.interestOps(SelectionKey.OP_WRITE);
                     break;
                 }
                 case "logWrong": {
                     getClientManager().sendLogMessage(Level.SEVERE, socketData.getId() + ": Credential Wrong");
-                    socketData.setLinkState(LinkState.FAILED);
+                    serverConnectionData.setLinkState(ServerConnectionData.LinkState.FAILED);
                     socketData.closeConnection();
                     break;
                 }
@@ -160,8 +157,15 @@ public class Client extends Listener {
     }
 
     public void onWritable(ConnectionData socketData, SelectionKey key) {
+
+        if (!(socketData instanceof ServerConnectionData)) {
+            return;
+        }
+
+        ServerConnectionData serverConnectionData = (ServerConnectionData) socketData;
+
         DataTransfer dataTransfer = socketData.getFirstDataSender();
-        if (dataTransfer != null && socketData.getLinkState() == LinkState.LOGGED) {
+        if (dataTransfer != null && serverConnectionData.getLinkState() == ServerConnectionData.LinkState.LOGGED) {
             if (dataTransfer.isSocketState(SocketState.WAIT_APPROVAL_SEND)) {
                 getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Sending data transfer approval");
                 dataTransfer.setSocketState(SocketState.WAIT_APPROVAL);

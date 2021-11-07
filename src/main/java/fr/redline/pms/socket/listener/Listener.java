@@ -1,7 +1,7 @@
 package fr.redline.pms.socket.listener;
 
 import fr.redline.pms.socket.connection.ConnectionData;
-import fr.redline.pms.socket.connection.LinkState;
+import fr.redline.pms.socket.credential.Credential;
 import fr.redline.pms.socket.manager.ClientManager;
 import fr.redline.pms.utils.IpInfo;
 
@@ -11,11 +11,18 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.AbstractSelectableChannel;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.logging.Level;
 
 public abstract class Listener {
+
+    static HashMap<ListenerType, List<Listener>> listenerHashMap = new HashMap<>();
+
+    public Listener(ClientManager clientManager, ListenerType listenerType) {
+        this.clientManager = clientManager;
+        this.listenerType = listenerType;
+        this.add();
+    }
 
     Selector selector = null;
     AbstractSelectableChannel socketChannel = null;
@@ -24,9 +31,27 @@ public abstract class Listener {
     IpInfo ipInfo = null;
     Timer timer = new Timer();
 
-    public Listener(ClientManager clientManager, ListenerType listenerType){
-        this.clientManager = clientManager;
-        this.listenerType = listenerType;
+    public Listener getListener(ListenerType listenerType, IpInfo ipInfo) {
+
+        if (!listenerHashMap.containsKey(listenerType))
+            return null;
+
+        for (Listener listener : listenerHashMap.get(listenerType)) {
+            if (listener.getIpInfo() == ipInfo)
+                return listener;
+        }
+
+        return null;
+
+    }
+
+    private void add() {
+        Listener listener = this;
+        if (listenerHashMap.containsKey(listenerType)) {
+            listenerHashMap.get(listenerType).add(listener);
+        } else listenerHashMap.put(listenerType, new ArrayList<Listener>() {{
+            add(listener);
+        }});
     }
 
     public ClientManager getClientManager() {
@@ -45,20 +70,20 @@ public abstract class Listener {
         this.ipInfo = ipInfo;
     }
 
-    protected boolean logIn(ConnectionData socketData, String text) {
-        if (socketData.getLinkState() == LinkState.LOGGED) {
+    protected Credential logIn(ConnectionData socketData, String text) {
+        if (socketData.getCredential() != null) {
             getClientManager().sendLogMessage(Level.SEVERE, "Phase 2) Error on connecting " + socketData.getId() + " Reason: Socket already connected");
-            return true;
+            return socketData.getCredential();
         }
         if (text == null) {
             getClientManager().sendLogMessage(Level.SEVERE, "Phase 2) Error on connecting " + socketData.getId() + " Reason: Login text null");
-            return false;
+            return null;
         }
         String[] logInInfo = text.split(getClientManager().getSocketSplit());
-        boolean authorized = false;
+        Credential credential = null;
         if (!logInInfo[0].equals("logCred")) {
             getClientManager().sendLogMessage(Level.SEVERE, "Phase 2) Error on connecting " + socketData.getId() + " Reason: Text not recognize as login text");
-            return false;
+            return null;
         }
         getClientManager().sendLogMessage(Level.INFO, "Phase 2) Authing socket " + socketData.getId() + ", text recognize as login text");
         if (logInInfo.length == 2) {
@@ -66,15 +91,15 @@ public abstract class Listener {
             String account = null;
             if (!logInInfo[1].equals("null"))
                 account = logInInfo[1];
-            authorized = getClientManager().getCredentialClass().isAccount(account, null);
+            credential = getClientManager().getCredentialClass().getCredential(account, null);
         } else if (logInInfo.length == 3) {
             getClientManager().sendLogMessage(Level.INFO, "Phase 2) Authing socket " + socketData.getId() + ", text recognize as login text with 4 args");
-            authorized = getClientManager().getCredentialClass().isAccount(logInInfo[1], logInInfo[2]);
+            credential = getClientManager().getCredentialClass().getCredential(logInInfo[1], logInInfo[2]);
         }
         socketData.getSelectionKey().interestOps(SelectionKey.OP_WRITE);
 
-        socketData.setLinkState(authorized ? LinkState.LOGGED : LinkState.NOT_LOGGED);
-        if (authorized) {
+        socketData.setCredential(credential);
+        if (credential != null) {
             getClientManager().sendLogMessage(Level.FINE, "Phase 2) Authing socket " + socketData.getId() + ", Socket logged");
             socketData.write("logOkay");
         } else {
@@ -83,15 +108,16 @@ public abstract class Listener {
             socketData.closeConnection();
         }
         socketData.getSelectionKey().interestOps(SelectionKey.OP_READ);
-        return authorized;
+        return credential;
     }
 
-    protected void sendCredential(ConnectionData socketData, String password) {
+    protected void sendCredential(ConnectionData socketData) {
         String toSend = "logCred" + clientManager.getSocketSplit();
-        if (socketData.getAccount() != null) {
-            toSend += socketData.getAccount();
-            if (password != null)
-                toSend += password;
+        Credential credential = socketData.getCredential();
+        if (credential != null) {
+            toSend += credential.getAccount();
+            if (credential.getPassword() != null)
+                toSend += credential.getPassword();
         } else
             toSend = toSend + "null";
 

@@ -1,6 +1,6 @@
 package fr.redline.pms.socket.manager;
 
-import fr.redline.pms.utils.CredentialClass;
+import fr.redline.pms.socket.credential.CredentialManager;
 import fr.redline.pms.utils.GSONSaver;
 
 import java.io.File;
@@ -24,9 +24,9 @@ public class ClientManager {
         Credential Class
      */
 
-    private CredentialClass credentialClass = new CredentialClass();
+    private CredentialManager credentialClass = new CredentialManager();
 
-    public CredentialClass getCredentialClass() {
+    public CredentialManager getCredentialClass() {
         return this.credentialClass;
     }
 
@@ -35,7 +35,7 @@ public class ClientManager {
     }
 
     public boolean loadCredential(File file) {
-        CredentialClass credentialClass = GSONSaver.loadGSON(file, CredentialClass.class);
+        CredentialManager credentialClass = GSONSaver.loadGSON(file, CredentialManager.class);
         if (credentialClass != null) {
             this.credentialClass = credentialClass;
             return true;

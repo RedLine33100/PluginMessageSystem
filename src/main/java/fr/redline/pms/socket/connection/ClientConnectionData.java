@@ -9,7 +9,7 @@ import java.nio.channels.SelectionKey;
 public class ClientConnectionData extends ConnectionData {
 
     /*
-    Use in Client Side
+        Use by fr.redline.pms.socket.listener.server.Server
      */
 
     public ClientConnectionData(ClientManager clientManager, Listener listener, SelectionKey selectionKey) {
