@@ -44,6 +44,10 @@ public class CredentialManager {
 
     public void authorizeAnonymous(boolean b) {
         this.anonymous = b;
+        if (b)
+            addCredential("anonymous", "null");
+        else
+            removeCredential("anonymous");
     }
 
 }

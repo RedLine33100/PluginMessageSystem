@@ -71,58 +71,38 @@ public abstract class Listener {
     }
 
     protected Credential logIn(ConnectionData socketData, String text) {
-        if (socketData.getCredential() != null) {
+        if (socketData.getCredential() != null || text == null) {
             getClientManager().sendLogMessage(Level.SEVERE, "Phase 2) Error on connecting " + socketData.getId() + " Reason: Socket already connected");
             return socketData.getCredential();
         }
-        if (text == null) {
-            getClientManager().sendLogMessage(Level.SEVERE, "Phase 2) Error on connecting " + socketData.getId() + " Reason: Login text null");
-            return null;
-        }
+
         String[] logInInfo = text.split(getClientManager().getSocketSplit());
-        Credential credential = null;
-        if (!logInInfo[0].equals("logCred")) {
+        if (!logInInfo[0].equals("logCred") || logInInfo.length != 3) {
             getClientManager().sendLogMessage(Level.SEVERE, "Phase 2) Error on connecting " + socketData.getId() + " Reason: Text not recognize as login text");
             return null;
         }
-        getClientManager().sendLogMessage(Level.INFO, "Phase 2) Authing socket " + socketData.getId() + ", text recognize as login text");
-        if (logInInfo.length == 2) {
-            getClientManager().sendLogMessage(Level.INFO, "Phase 2) Authing socket " + socketData.getId() + ", text recognize as login text with 3 args");
-            String account = null;
-            if (!logInInfo[1].equals("null"))
-                account = logInInfo[1];
-            credential = getClientManager().getCredentialClass().getCredential(account, null);
-        } else if (logInInfo.length == 3) {
-            getClientManager().sendLogMessage(Level.INFO, "Phase 2) Authing socket " + socketData.getId() + ", text recognize as login text with 4 args");
-            credential = getClientManager().getCredentialClass().getCredential(logInInfo[1], logInInfo[2]);
-        }
-        socketData.getSelectionKey().interestOps(SelectionKey.OP_WRITE);
 
-        socketData.setCredential(credential);
-        if (credential != null) {
-            getClientManager().sendLogMessage(Level.FINE, "Phase 2) Authing socket " + socketData.getId() + ", Socket logged");
-            socketData.write("logOkay");
-        } else {
+        getClientManager().sendLogMessage(Level.INFO, "Phase 2) Authing socket " + socketData.getId() + ", text recognize as login text");
+        Credential credential = clientManager.getCredentialClass().getCredential(logInInfo[1], logInInfo[2]);
+        socketData.write(credential != null ? "logOkay" : "logWrong");
+
+        if (credential == null) {
             getClientManager().sendLogMessage(Level.SEVERE, "Phase 2) Authing socket " + socketData.getId() + ", Socket logging failed");
-            socketData.write("logWrong");
             socketData.closeConnection();
+            return null;
         }
+
+        getClientManager().sendLogMessage(Level.FINE, "Phase 2) Authing socket " + socketData.getId() + ", Socket logged");
+        socketData.setCredential(credential);
+
         socketData.getSelectionKey().interestOps(SelectionKey.OP_READ);
         return credential;
     }
 
     protected void sendCredential(ConnectionData socketData) {
-        String toSend = "logCred" + clientManager.getSocketSplit();
         Credential credential = socketData.getCredential();
-        if (credential != null) {
-            toSend += credential.getAccount();
-            if (credential.getPassword() != null)
-                toSend += credential.getPassword();
-        } else
-            toSend = toSend + "null";
-
         clientManager.sendLogMessage(Level.INFO, socketData.getId() + ": Sending credential");
-        socketData.write(toSend);
+        socketData.write("logCred" + clientManager.getSocketSplit() + credential.getAccount() + clientManager.getSocketSplit() + credential.getPassword());
     }
 
     protected void startConnection() throws IOException {
@@ -201,7 +181,7 @@ public abstract class Listener {
             }
         };
 
-        timer.scheduleAtFixedRate(timerTask, 500, 500);
+        timer.scheduleAtFixedRate(timerTask, 0, 500);
 
     }
 
