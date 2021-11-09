@@ -1,9 +1,9 @@
-package fr.redline.pms.socket.manager;
+package fr.redline.pms.socket.listener.server;
 
 import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.InstanceCreator;
-import fr.redline.pms.socket.listener.server.Server;
+import fr.redline.pms.socket.listener.client.ClientManager;
 
 import java.util.HashMap;
 
@@ -39,13 +39,13 @@ public class ServerManager extends ClientManager {
     }
 
     public boolean setSocketReceiver(String title, InstanceCreator instanceCreator, Class<? extends DataTransfer> dr) {
-        removeSocketReceiver(title);
+        if (hasSocketReceiver(title)) return false;
         this.socketReceiverHashMap.put(title, new Memorize(instanceCreator, dr));
         return true;
     }
 
-    public void removeSocketReceiver(String title) {
-        this.socketReceiverHashMap.remove(title);
+    public boolean removeSocketReceiver(String title) {
+        return this.socketReceiverHashMap.remove(title) != null;
     }
 
     private static class Memorize {

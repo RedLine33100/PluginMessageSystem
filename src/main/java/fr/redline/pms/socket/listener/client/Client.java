@@ -1,11 +1,12 @@
-package fr.redline.pms.socket.listener;
+package fr.redline.pms.socket.listener.client;
 
 import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.socket.connection.ServerConnectionData;
 import fr.redline.pms.socket.credential.Credential;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
-import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.socket.listener.sub.Listener;
+import fr.redline.pms.socket.listener.sub.ListenerType;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -15,7 +16,7 @@ import java.util.logging.Level;
 
 public class Client extends Listener {
 
-    public Client(ClientManager clientManager) {
+    Client(ClientManager clientManager) {
         super(clientManager, ListenerType.CLIENT);
     }
 
@@ -38,7 +39,7 @@ public class Client extends Listener {
 
             ServerConnectionData socketData = new ServerConnectionData(getClientManager(), this, getSocketChannel().register(getSelector(), SelectionKey.OP_CONNECT));
 
-            getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Connecting to: " + ipInfo);
+            getClientManager().sendLogMessage(Level.INFO, socketData.getId() + ": Connecting to: " + getIpInfo());
             socketData.getSelectionKey().attach(socketData);
             socketData.setCredential(credential);
 

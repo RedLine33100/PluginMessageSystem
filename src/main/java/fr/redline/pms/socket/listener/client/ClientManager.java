@@ -1,6 +1,7 @@
-package fr.redline.pms.socket.manager;
+package fr.redline.pms.socket.listener.client;
 
 import fr.redline.pms.socket.credential.CredentialManager;
+import fr.redline.pms.socket.listener.AutoStopSyst;
 import fr.redline.pms.utils.GSONSaver;
 
 import java.io.File;
@@ -18,7 +19,9 @@ public class ClientManager {
         setLogDiff(logDiff);
     }
 
-
+    public Client getNewClient() {
+        return new Client(this);
+    }
 
     /*
         Credential Class

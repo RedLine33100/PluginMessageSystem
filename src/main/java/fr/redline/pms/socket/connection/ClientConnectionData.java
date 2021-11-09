@@ -1,8 +1,8 @@
 package fr.redline.pms.socket.connection;
 
-import fr.redline.pms.socket.listener.Listener;
-import fr.redline.pms.socket.manager.ClientManager;
-import fr.redline.pms.socket.manager.ServerManager;
+import fr.redline.pms.socket.listener.client.ClientManager;
+import fr.redline.pms.socket.listener.server.ServerManager;
+import fr.redline.pms.socket.listener.sub.Listener;
 
 import java.nio.channels.SelectionKey;
 

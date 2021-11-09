@@ -1,15 +1,15 @@
 package fr.redline.pms.socket.connection;
 
 import fr.redline.pms.socket.inter.DataTransfer;
-import fr.redline.pms.socket.listener.Listener;
-import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.socket.listener.client.ClientManager;
+import fr.redline.pms.socket.listener.sub.Listener;
 
 import java.nio.channels.SelectionKey;
 
 public class ServerConnectionData extends ConnectionData {
 
     /*
-        Use by fr.redline.pms.socket.listener.Client
+        Use by fr.redline.pms.socket.listener.client.Client
      */
 
     LinkState linkState = LinkState.NOT_LOGGED;

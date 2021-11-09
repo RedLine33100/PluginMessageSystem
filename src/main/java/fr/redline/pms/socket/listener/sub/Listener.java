@@ -1,8 +1,8 @@
-package fr.redline.pms.socket.listener;
+package fr.redline.pms.socket.listener.sub;
 
 import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.socket.credential.Credential;
-import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.socket.listener.client.ClientManager;
 import fr.redline.pms.utils.IpInfo;
 
 import java.io.IOException;

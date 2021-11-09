@@ -1,6 +1,7 @@
-package fr.redline.pms.socket.manager;
+package fr.redline.pms.socket.listener;
 
 import fr.redline.pms.socket.connection.ConnectionData;
+import fr.redline.pms.socket.listener.client.ClientManager;
 
 import java.util.ArrayList;
 import java.util.logging.Level;

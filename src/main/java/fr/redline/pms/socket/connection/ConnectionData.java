@@ -3,8 +3,8 @@ package fr.redline.pms.socket.connection;
 import fr.redline.pms.socket.credential.Credential;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
-import fr.redline.pms.socket.listener.Listener;
-import fr.redline.pms.socket.manager.ClientManager;
+import fr.redline.pms.socket.listener.client.ClientManager;
+import fr.redline.pms.socket.listener.sub.Listener;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

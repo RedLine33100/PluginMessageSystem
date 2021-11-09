@@ -4,9 +4,8 @@ import fr.redline.pms.socket.connection.ClientConnectionData;
 import fr.redline.pms.socket.connection.ConnectionData;
 import fr.redline.pms.socket.inter.DataTransfer;
 import fr.redline.pms.socket.inter.SocketState;
-import fr.redline.pms.socket.listener.Listener;
-import fr.redline.pms.socket.listener.ListenerType;
-import fr.redline.pms.socket.manager.ServerManager;
+import fr.redline.pms.socket.listener.sub.Listener;
+import fr.redline.pms.socket.listener.sub.ListenerType;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -21,7 +20,7 @@ public class Server extends Listener {
     ServerState serverState = ServerState.MISSING_BOUND;
     Timer timer = new Timer();
 
-    public Server(ServerManager serverManager) {
+    Server(ServerManager serverManager) {
         super(serverManager, ListenerType.SERVER);
     }
 

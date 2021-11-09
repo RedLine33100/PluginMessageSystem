@@ -1,4 +1,4 @@
-package fr.redline.pms.socket.listener;
+package fr.redline.pms.socket.listener.sub;
 
 public enum ListenerType {
     SERVER,
