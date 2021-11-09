@@ -50,4 +50,8 @@ public class CredentialManager {
             removeCredential("anonymous");
     }
 
+    public Credential getAnonymousCredential() {
+        return new Credential("anonymous", "null");
+    }
+
 }
