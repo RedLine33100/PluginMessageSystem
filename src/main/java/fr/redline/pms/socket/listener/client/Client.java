@@ -59,10 +59,6 @@ public class Client extends Listener {
         }
     }
 
-    public void addDataTransfer(ServerConnectionData socketData, DataTransfer dataTransfer) {
-        socketData.addDataSender(dataTransfer);
-    }
-
     public void onReadable(ConnectionData socketData, SelectionKey key) {
 
         if (!(socketData instanceof ServerConnectionData)) {

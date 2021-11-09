@@ -29,13 +29,7 @@ public class CredentialManager {
 
     public Credential getCredential(String username, String password) {
         Credential credential = getCredential(username);
-        if (credential != null) {
-            if (password == null && credential.getPassword() == null) {
-                return credential;
-            } else if (credential.getPassword() != null && credential.getPassword().equals(password))
-                return credential;
-        }
-        return null;
+        return credential.getPassword().equals(password) ? credential : null;
     }
 
     public Credential generateCredential(String username, String password) {
@@ -48,6 +42,10 @@ public class CredentialManager {
             addCredential("anonymous", "null");
         else
             removeCredential("anonymous");
+    }
+
+    public Credential getAnonymousCredential() {
+        return new Credential("anonymous", "null");
     }
 
 }
